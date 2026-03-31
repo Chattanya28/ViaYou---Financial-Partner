@@ -1,0 +1,150 @@
+@model IEnumerable<ViaYou.Core.Entities.Notification>
+
+@{
+    ViewData["Title"] = "Command Hub Routing";
+    int unreadCount = ViewBag.UnreadCount ?? 0;
+}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl slide-in relative py-8">
+    <!-- Action Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                <i class="fas fa-satellite-dish text-blue-500"></i>
+                Data Streams
+            </h1>
+            <p class="text-gray-400 mt-2 text-sm">
+                System intelligence network tracking
+                <span class="font-bold text-white">@unreadCount unread</span> operational events.
+            </p>
+        </div>
+        
+        <div class="flex gap-3 w-full md:w-auto">
+            @if (Model != null && Model.Any())
+            {
+                <form asp-controller="Notification" asp-action="ClearAll" method="post" class="flex-1 md:flex-none">
+                    <button type="submit" class="w-full px-5 py-2.5 bg-dark border border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-400 text-gray-400 rounded-xl transition text-sm font-medium btn-3d flex justify-center items-center gap-2">
+                        <i class="fas fa-trash-alt"></i> Prune Log
+                    </button>
+                </form>
+            }
+            @if (unreadCount > 0)
+            {
+                <form asp-controller="Notification" asp-action="MarkAllRead" method="post" class="flex-1 md:flex-none">
+                    <button type="submit" class="w-full px-5 py-2.5 bg-dark-card border border-blue-500/30 hover:bg-blue-500/10 text-blue-400 font-bold rounded-xl transition btn-3d shadow-sm flex justify-center items-center gap-2 text-sm">
+                        <i class="fas fa-check-double text-blue-500"></i> Acknowledge All
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+
+    <!-- Live Intelligence Arrays -->
+    <div class="bg-dark-card rounded-3xl shadow-3d border border-dark-border overflow-hidden card-3d">
+        @if (Model != null && Model.Any())
+        {
+            <ul class="divide-y divide-dark-border/50">
+                @foreach (var notification in Model)
+                {
+                    // Define background style
+                    string bgStyle = notification.IsRead
+                        ? "bg-transparent text-gray-500 hover:bg-white/5"
+                        : "bg-blue-900/10 border-l-4 border-blue-500 text-white hover:bg-blue-900/20";
+                    
+                    // Define icon based on notification type
+                    string iconClass = "fa-bell";
+                    string iconColor = "text-gray-400";
+                    string urlTarget = "/Dashboard";
+                    
+                    switch (notification.Type)
+                    {
+                        case "Alert":
+                            iconClass = "fa-exclamation-triangle";
+                            iconColor = "text-amber-500";
+                            urlTarget = "/Dashboard";
+                            break;
+                        case "Info":
+                            iconClass = "fa-info-circle";
+                            iconColor = "text-blue-500";
+                            urlTarget = "/Dashboard";
+                            break;
+                        case "Success":
+                            iconClass = "fa-check-circle";
+                            iconColor = "text-emerald-500";
+                            urlTarget = "/Transactions";
+                            break;
+                        case "Security":
+                            iconClass = "fa-shield-haltered";
+                            iconColor = "text-rose-500";
+                            urlTarget = "/Security";
+                            break;
+                        case "Bill":
+                            iconClass = "fa-file-invoice";
+                            iconColor = "text-purple-500";
+                            urlTarget = "/Bills";
+                            break;
+                        case "Transaction":
+                            iconClass = "fa-money-bill-wave";
+                            iconColor = "text-emerald-400";
+                            urlTarget = "/Transactions";
+                            break;
+                        case "Goal":
+                            iconClass = "fa-bullseye";
+                            iconColor = "text-indigo-500";
+                            urlTarget = "/GoalSimulator";
+                            break;
+                        default:
+                            iconClass = "fa-bell";
+                            iconColor = "text-gray-400";
+                            urlTarget = "/Dashboard";
+                            break;
+                    }
+                    
+                    <li class="p-6 transition duration-200 @bgStyle relative flex flex-col sm:flex-row items-start sm:items-center gap-5">
+                        <!-- Icon Base -->
+                        <div class="w-12 h-12 rounded-2xl bg-dark border border-dark-border flex items-center justify-center shrink-0 shadow-inner transition-transform">
+                            <i class="fas @iconClass @iconColor text-xl"></i>
+                        </div>
+                        
+                        <!-- Payload (Clickable Route Block) -->
+                        <a href="@urlTarget" class="flex-1 min-w-0 cursor-pointer group">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-1 sm:gap-4 mb-2">
+                                <h3 class="text-base font-bold truncate @(notification.IsRead ? "text-gray-400 group-hover:text-gray-200" : "text-white") transition-colors">
+                                    @notification.Title
+                                </h3>
+                                <div class="text-xs text-nowrap @(notification.IsRead ? "text-gray-600" : "text-blue-400/80") font-medium">
+                                    @notification.CreatedAt.ToString("MMM dd, hh:mm tt")
+                                </div>
+                            </div>
+                            <p class="text-sm leading-relaxed @(notification.IsRead ? "text-gray-500" : "text-gray-300")">
+                                @notification.Message
+                            </p>
+                        </a>
+
+                        <!-- State Toggle Control -->
+                        <div class="mt-4 sm:mt-0 opacity-100 sm:opacity-50 hover:opacity-100 transition-opacity">
+                            <form asp-controller="Notification" asp-action="ToggleStatus" method="post">
+                                <input type="hidden" name="id" value="@notification.Id" />
+                                <button type="submit" class="px-3 py-1.5 rounded-lg border border-dark-border text-xs font-semibold @(notification.IsRead ? "bg-dark hover:bg-white/10 text-gray-400 hover:text-white" : "bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border-blue-500/30") transition-all">
+                                    @(notification.IsRead ? "Mark Unread" : "Mark Read")
+                                </button>
+                            </form>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="p-20 text-center">
+                <div class="w-24 h-24 bg-dark border border-dark-border rounded-full flex items-center justify-center mx-auto mb-6 shadow-3d">
+                    <i class="fas fa-radar text-gray-600 text-4xl animate-pulse"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">Zero Active Vectors</h3>
+                <p class="text-gray-500 text-sm max-w-sm mx-auto">
+                    Sensors are green. Your intelligence log currently holds no pending anomalies or alerts.
+                </p>
+            </div>
+        }
+    </div>
+</div>

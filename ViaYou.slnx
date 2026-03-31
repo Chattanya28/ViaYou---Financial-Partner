@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="ViaYou.Core/ViaYou.Core.csproj" />
+  <Project Path="ViaYou.Tests/ViaYou.Tests.csproj" />
+  <Project Path="ViaYou/ViaYou.csproj" />
+</Solution>

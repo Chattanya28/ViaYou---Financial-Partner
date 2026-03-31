@@ -1,0 +1,14 @@
+C:\Users\chatt\source\repos\ViaYou\ViaYou.Core\bin\Debug\net10.0\ViaYou.Core.deps.json
+C:\Users\chatt\source\repos\ViaYou\ViaYou.Core\bin\Debug\net10.0\ViaYou.Core.runtimeconfig.json
+C:\Users\chatt\source\repos\ViaYou\ViaYou.Core\bin\Debug\net10.0\ViaYou.Core.dll
+C:\Users\chatt\source\repos\ViaYou\ViaYou.Core\bin\Debug\net10.0\ViaYou.Core.pdb
+C:\Users\chatt\source\repos\ViaYou\ViaYou.Core\obj\Debug\net10.0\ViaYou.Core.csproj.AssemblyReference.cache
+C:\Users\chatt\source\repos\ViaYou\ViaYou.Core\obj\Debug\net10.0\ViaYou.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\chatt\source\repos\ViaYou\ViaYou.Core\obj\Debug\net10.0\ViaYou.Core.AssemblyInfoInputs.cache
+C:\Users\chatt\source\repos\ViaYou\ViaYou.Core\obj\Debug\net10.0\ViaYou.Core.AssemblyInfo.cs
+C:\Users\chatt\source\repos\ViaYou\ViaYou.Core\obj\Debug\net10.0\ViaYou.Core.csproj.CoreCompileInputs.cache
+C:\Users\chatt\source\repos\ViaYou\ViaYou.Core\obj\Debug\net10.0\ViaYou.Core.dll
+C:\Users\chatt\source\repos\ViaYou\ViaYou.Core\obj\Debug\net10.0\refint\ViaYou.Core.dll
+C:\Users\chatt\source\repos\ViaYou\ViaYou.Core\obj\Debug\net10.0\ViaYou.Core.pdb
+C:\Users\chatt\source\repos\ViaYou\ViaYou.Core\obj\Debug\net10.0\ViaYou.Core.genruntimeconfig.cache
+C:\Users\chatt\source\repos\ViaYou\ViaYou.Core\obj\Debug\net10.0\ref\ViaYou.Core.dll

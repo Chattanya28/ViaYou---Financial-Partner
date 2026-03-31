@@ -1,0 +1,249 @@
+@model ViaYou.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "Identity Hub";
+}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl slide-in relative py-8">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                <i class="fas fa-fingerprint text-purple-500"></i>
+                Identity Settings
+            </h1>
+            <p class="text-gray-400 mt-2 text-sm">Manage your personal footprint and core platform preferences.</p>
+        </div>
+        <div class="px-5 py-2.5 bg-dark-card border border-dark-border rounded-xl flex items-center gap-3">
+            <span class="text-gray-400 text-sm">Security Rating:</span>
+            <span class="text-emerald-500 font-bold">@Model.SecurityScore / 100</span>
+        </div>
+    </div>
+
+    <div class="grid lg:grid-cols-12 gap-8">
+        
+        <!-- Left Column: Identity Visuals -->
+        <div class="lg:col-span-4 space-y-6">
+            
+            <!-- Avatar Card -->
+            <div class="bg-dark-card border border-dark-border rounded-3xl p-6 shadow-3d card-3d text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-br from-purple-600/20 to-blue-600/20 z-0"></div>
+                
+                <div class="relative z-10 flex justify-center mb-6 mt-4 group cursor-pointer" onclick="document.getElementById('avatarInput').click()">
+                    @if (!string.IsNullOrEmpty(Model.ProfilePictureBase64))
+                    {
+                        <img src="@Model.ProfilePictureBase64" alt="Profile" class="w-28 h-28 rounded-2xl object-cover shadow-2xl border-4 border-dark-card group-hover:border-blue-500/50 transition-colors">
+                    }
+                    else
+                    {
+                        <div class="w-28 h-28 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center text-4xl font-bold text-white shadow-2xl border-4 border-dark-card group-hover:scale-105 transition-transform">
+                            @Model.Initial
+                        </div>
+                    }
+                    <div class="absolute bottom-0 right-0 md:right-1/4 w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white border-2 border-dark-card shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i class="fas fa-camera text-xs"></i>
+                    </div>
+                </div>
+                
+                <h2 class="text-xl font-bold text-white relative z-10 mb-1">@Model.FullName</h2>
+                <p class="text-gray-500 text-sm relative z-10">Member since @Model.MemberSince.ToString("MMM yyyy")</p>
+
+                <form id="avatarForm" asp-controller="Profile" asp-action="UploadPicture" method="post" enctype="multipart/form-data" class="hidden">
+                    <input type="file" id="avatarInput" name="ProfilePictureFile" accept="image/*" onchange="document.getElementById('avatarForm').submit()">
+                </form>
+            </div>
+
+            <!-- KYC Status -->
+            <div class="bg-dark-card border border-dark-border rounded-2xl p-5 card-3d flex items-center justify-between group">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl @(Model.KycStatus == "Verified" ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500") flex items-center justify-center">
+                        <i class="fas @(Model.KycStatus == "Verified" ? "fa-shield-check" : "fa-shield-haltered") text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold mb-1">KYC Status</h4>
+                        <p class="text-xs text-gray-400">Identity verification pipeline</p>
+                    </div>
+                </div>
+                <span class="px-3 py-1 rounded-full text-xs font-bold @(Model.KycStatus == "Verified" ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400")">
+                    @Model.KycStatus
+                </span>
+            </div>
+
+            <!-- Verification Block -->
+            <div class="bg-dark-card border border-dark-border rounded-2xl p-5 card-3d">
+                <div class="flex items-center gap-3 mb-4">
+                    <i class="fas fa-envelope text-gray-400"></i>
+                    <h4 class="text-white font-bold">Email Routing</h4>
+                </div>
+                @if (Model.EmailConfirmed)
+                {
+                    <div class="flex items-center text-emerald-400 text-sm bg-emerald-500/10 p-3 rounded-lg border border-emerald-500/20">
+                        <i class="fas fa-check-circle mr-2"></i> Verified Communication active.
+                    </div>
+                }
+                else
+                {
+                    <div class="flex flex-col gap-3">
+                        <div class="flex items-start text-amber-400 text-sm bg-amber-500/10 p-3 rounded-lg border border-amber-500/20">
+                            <i class="fas fa-triangle-exclamation mr-2 mt-0.5"></i>
+                            <p>Action Required: System limits enabled until verified.</p>
+                        </div>
+                        <form asp-controller="Profile" asp-action="ResendVerification" method="post">
+                            <button type="submit" class="w-full text-center py-2 bg-dark/50 border border-amber-500/20 hover:border-amber-500/50 text-amber-400 rounded-lg text-sm transition font-medium">
+                                Resend Validation Link
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+
+        </div>
+
+        <!-- Right Column: Settings Vectors -->
+        <div class="lg:col-span-8 space-y-6">
+            
+            <!-- Personal Data Edit Form -->
+            <div class="bg-dark-card border border-dark-border rounded-3xl p-6 md:p-8 shadow-3d card-3d relative overflow-hidden">
+                <h3 class="text-lg font-bold text-white mb-6 pb-4 border-b border-dark-border flex items-center gap-3">
+                    <i class="fas fa-user-pen text-blue-500"></i> Baseline Configurations
+                </h3>
+                
+                <form asp-controller="Profile" asp-action="EditProfile" method="post">
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wide">Full Legal Name</label>
+                            <input asp-for="EditProfile.FullName" class="w-full px-4 py-3 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition" />
+                            <span asp-validation-for="EditProfile.FullName" class="text-red-500 text-xs mt-1 block"></span>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wide">Email Target</label>
+                            <input asp-for="EditProfile.Email" class="w-full px-4 py-3 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition" />
+                            <span asp-validation-for="EditProfile.Email" class="text-red-500 text-xs mt-1 block"></span>
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wide">Contact Link (Phone)</label>
+                            <input asp-for="EditProfile.PhoneNumber" placeholder="+91 00000 00000" class="w-full px-4 py-3 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition" />
+                            <span asp-validation-for="EditProfile.PhoneNumber" class="text-red-500 text-xs mt-1 block"></span>
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wide">Interface Language</label>
+                            <select asp-for="EditProfile.LanguagePreference" class="w-full px-4 py-3 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition appearance-none cursor-pointer">
+                                <option value="English">English</option>
+                                <option value="Hindi">Hindi</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-8 pt-4 border-t border-dark-border">
+                        <label class="flex items-center justify-between cursor-pointer group">
+                            <div>
+                                <h4 class="text-white font-medium mb-1">System Push Notifications</h4>
+                                <p class="text-gray-500 text-xs">Receive platform trajectory updates natively on your device.</p>
+                            </div>
+                            <!-- Custom Toggle switch -->
+                            <div class="relative">
+                                <input asp-for="EditProfile.LoginAlertsEnabled" type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-dark border border-dark-border rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-gray-300 peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)] btn-3d">
+                            Flash Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Client Side Aesthetic Controls -->
+            <div class="bg-dark-card border border-dark-border rounded-3xl p-6 card-3d">
+                <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-3">
+                    <i class="fas fa-palette text-pink-500"></i> Aesthetics Engine
+                </h3>
+                
+                <div class="flex items-center justify-between p-4 rounded-xl border border-dark-border bg-dark/50">
+                    <div>
+                        <h4 class="text-white font-medium">Invert Dark/Light Matter</h4>
+                        <p class="text-gray-500 text-xs mt-1">Natively override the global CSS variables dynamically.</p>
+                    </div>
+                    <button type="button" onclick="toggleThemeMode()" class="px-5 py-2 rounded-lg border border-dark-border hover:border-gray-500 hover:bg-white/5 text-gray-300 text-sm font-bold transition-all flex items-center gap-2">
+                        <i class="fas fa-adjust"></i> <span id="localThemeToggleText">Toggle Contrast</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Termination Zone -->
+            <div class="bg-dark border border-red-500/20 rounded-3xl p-6 card-3d relative overflow-hidden group">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-red-500/5 rounded-full z-0 group-hover:scale-150 transition-transform duration-700"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-rose-500 font-bold mb-1"><i class="fas fa-skull text-rose-500/50 mr-2"></i> Danger Zone</h3>
+                        <p class="text-gray-400 text-xs max-w-sm leading-relaxed">Instantly obliterate your core identity and all attached financial footprint ledgers irreversibly from our tracking engines.</p>
+                    </div>
+                    
+                    <button onclick="openDeleteModal()" class="px-5 py-2.5 bg-rose-500/10 hover:bg-rose-500 hover:text-white border border-rose-500/30 text-rose-500 rounded-xl font-bold text-sm transition-all btn-3d whitespace-nowrap">
+                        Delete Account
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Terminate Account Modal -->
+<div id="deleteModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="absolute inset-0 bg-dark/90 backdrop-blur-md" onclick="closeDeleteModal()"></div>
+    
+    <div class="relative bg-dark border border-red-500/30 rounded-3xl shadow-[0_0_50px_rgba(239,68,68,0.2)] p-8 w-full max-w-md mx-4 transform scale-95 transition-transform duration-300" id="deleteModalContent">
+        <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-triangle-exclamation text-rose-500 text-2xl animate-pulse"></i>
+        </div>
+        
+        <h3 class="text-2xl font-bold text-white text-center mb-2">Final Warning</h3>
+        <p class="text-gray-400 text-center text-sm mb-8 leading-relaxed">
+            Executing this sequence will recursively delete all your records, goal arrays, and linked analytics from ViaYou. There is no undo.
+        </p>
+        
+        <form asp-controller="Profile" asp-action="DeleteAccount" method="post">
+            <div class="flex gap-4">
+                <button type="button" onclick="closeDeleteModal()" class="flex-1 py-3 rounded-xl border border-dark-border text-gray-300 hover:bg-white/5 transition font-bold text-sm">
+                    Abort
+                </button>
+                <button type="submit" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-red-600 hover:to-red-500 text-white font-bold text-sm shadow-lg shadow-red-500/20 transition btn-3d">
+                    Confirm Deletion
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function openDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            const content = document.getElementById('deleteModalContent');
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.add('opacity-100');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            });
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            const content = document.getElementById('deleteModalContent');
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+    </script>
+}

@@ -1,0 +1,845 @@
+@{
+    ViewData["Title"] = "Dashboard - ViaYou";
+    var firstName = ViewBag.UserName ?? "User";
+    var totalBalance = ViewBag.NetWorth ?? 0m;
+    int securityScore = ViewBag.SecurityScore ?? 0;
+    var lastWeekChange = 0.0m;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        /* Gradient Border for Cards */
+        .gradient-border {
+            position: relative;
+            background: #111115;
+            border-radius: 28px;
+        }
+        
+        /* Pulse Animation */
+        @@keyframes softPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+        .soft-pulse {
+            animation: softPulse 3s ease-in-out infinite;
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            transition: all 0.3s ease;
+        }
+        .chart-container:hover {
+            transform: perspective(1000px) rotateX(2deg);
+        }
+        
+        /* Slide In */
+        @@keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        
+        /* Action Button */
+        .action-btn {
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        .action-btn:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl slide-in relative">
+        
+        <!-- Toast Notifications -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="absolute top-4 right-4 z-50 p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-4 slide-in shadow-xl backdrop-blur-md">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-check-circle text-green-500"></i>
+                    <span class="text-green-400 font-medium text-sm">@TempData["SuccessMessage"]</span>
+                </div>
+                
+                @if(TempData["UndoTransactionId"] != null)
+                {
+                    <div class="border-l border-green-500/20 pl-4 ml-2">
+                        <form asp-controller="Dashboard" asp-action="UndoTransaction" method="post" class="m-0">
+                            <input type="hidden" name="transactionId" value="@TempData["UndoTransactionId"]" />
+                            <button type="submit" class="text-xs font-bold text-green-500 hover:text-green-300 transition uppercase tracking-wider">Undo</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="absolute top-4 right-4 z-50 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 slide-in shadow-xl backdrop-blur-md">
+                <i class="fas fa-exclamation-triangle text-red-500"></i>
+                <span class="text-red-400 font-medium text-sm">@TempData["ErrorMessage"]</span>
+            </div>
+        }
+
+        <!-- Hello Section -->
+        <div class="mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                Hello, <span class="gradient-text">@firstName</span>
+            </h1>
+        </div>
+        
+        <!-- Gradient Balance Card -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Main Balance Card - Gradient Background -->
+            <div class="lg:col-span-2 rounded-2xl p-6 card-3d float-animation relative overflow-hidden"
+                 style="background: linear-gradient(135deg, #1E1E3A 0%, #2A1E4A 50%, #1A1A2E 100%); border: 1px solid rgba(59, 130, 246, 0.2);">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-full -mt-20 -mr-20"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-blue-500/10 to-purple-600/10 rounded-full -mb-16 -ml-16"></div>
+                
+                <p class="text-gray-300 text-sm font-medium tracking-wide mb-2">Total Balance</p>
+                <p class="text-4xl sm:text-5xl font-bold text-white mb-2">₹@totalBalance.ToString("N0")</p>
+                <div class="flex items-center space-x-2">
+                    <span class="bg-green-500/20 text-green-400 text-sm font-semibold px-2.5 py-0.5 rounded-full">
+                        +₹258.28 (@lastWeekChange%)
+                    </span>
+                    <span class="text-gray-500 text-sm">Last Week</span>
+                </div>
+            </div>
+            
+            <!-- Security Score Card -->
+            <div class="bg-dark-card rounded-2xl p-6 shadow-3d card-3d border border-dark-border flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-gray-400 text-sm font-medium">Security Score</p>
+                        <div class="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-shield-haltered text-blue-500 text-lg"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-white">@securityScore<span class="text-lg text-gray-500">/100</span></p>
+                </div>
+                <div>
+                    <div class="mt-3 w-full bg-dark-border rounded-full h-2 progress-3d">
+                        <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" style="width: @securityScore%"></div>
+                    </div>
+                    <p class="text-xs @(securityScore >= 80 ? "text-green-500" : "text-yellow-500") mt-2">@(securityScore >= 80 ? "Protected & Secure" : "Action Recommended")</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Action Buttons -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+            <button onclick="openAddGoalModal()" class="action-btn bg-dark-card rounded-xl p-4 text-center shadow-3d border border-dark-border hover:border-blue-500/30 transition-all">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-lg">
+                    <i class="fas fa-bullseye text-white text-lg"></i>
+                </div>
+                <p class="text-gray-300 font-medium text-sm">Set Goal</p>
+            </button>
+            <button onclick="openAddAccountModal()" class="action-btn bg-dark-card rounded-xl p-4 text-center shadow-3d border border-dark-border hover:border-emerald-500/30 transition-all">
+                <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-500 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-lg">
+                    <i class="fas fa-plus text-white text-lg"></i>
+                </div>
+                <p class="text-gray-300 font-medium text-sm">Add Account</p>
+            </button>
+            <button onclick="openAddTransactionModal()" class="action-btn bg-dark-card rounded-xl p-4 text-center shadow-3d border border-dark-border hover:border-amber-500/30 transition-all">
+                <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-lg">
+                    <i class="fas fa-receipt text-white text-lg"></i>
+                </div>
+                <p class="text-gray-300 font-medium text-sm">Log Transaction</p>
+            </button>
+            <button onclick="openUpiModal()" class="action-btn bg-dark-card rounded-xl p-4 text-center shadow-3d border border-dark-border hover:border-blue-500/30 transition-all">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center mx-auto mb-2 shadow-lg">
+                    <i class="fas fa-qrcode text-white text-lg"></i>
+                </div>
+                <p class="text-gray-300 font-medium text-sm">Scan & Pay</p>
+            </button>
+        </div>
+        
+        <!-- Main Grid: Transactions + Statistics -->
+        <div class="grid lg:grid-cols-3 gap-6">
+            
+            <!-- Latest Transactions -->
+            <div class="lg:col-span-2 bg-dark-card rounded-2xl shadow-3d p-6 card-3d border border-dark-border">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg font-semibold text-white">Latest Transaction</h2>
+                    <a href="#" class="text-blue-500 text-sm hover:underline">View All</a>
+                </div>
+                
+                <div class="space-y-3">
+                    @if (ViewBag.RecentTransactions != null)
+                    {
+                        foreach (var tx in ViewBag.RecentTransactions)
+                        {
+                            bool isCredit = tx.Type.ToString().Equals("Credit", StringComparison.OrdinalIgnoreCase);
+                            var iconClass = isCredit ? "fa-arrow-down text-green-500" : "fa-arrow-up text-red-500";
+                            var bgClass = isCredit ? "bg-green-500/10" : "bg-red-500/10";
+                            var textClass = isCredit ? "text-green-500" : "text-white";
+                            var sign = isCredit ? "+" : "-";
+
+                            <div class="transaction-item flex justify-between items-center p-3 rounded-xl hover:bg-white/5 transition border border-transparent hover:border-dark-border">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 @bgClass rounded-xl flex items-center justify-center">
+                                        <i class="fas @iconClass"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-white">@tx.Merchant</p>
+                                        <p class="text-xs text-gray-500">@tx.Date.ToString("MMM dd, yyyy · hh:mm tt")</p>
+                                    </div>
+                                </div>
+                                <p class="font-bold @textClass">@sign₹@tx.Amount.ToString("N2")</p>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-gray-500 text-sm py-4 text-center">No recent transactions found.</p>
+                    }
+                </div>
+            </div>
+            
+            <!-- Statistics Chart -->
+            <div class="bg-dark-card rounded-2xl shadow-3d p-6 card-3d border border-dark-border">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-white">Statistics</h2>
+                    <div class="flex space-x-2">
+                        <button class="text-xs px-3 py-1 rounded-lg bg-blue-600 text-white font-medium btn-3d">Daily</button>
+                        <button class="text-xs px-3 py-1 rounded-lg bg-dark-border text-gray-400 hover:bg-dark-border/80 transition">Weekly</button>
+                        <button class="text-xs px-3 py-1 rounded-lg bg-dark-border text-gray-400 hover:bg-dark-border/80 transition">Monthly</button>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="spendingChart" class="w-full h-48"></canvas>
+                </div>
+                
+                <p class="text-center text-gray-500 text-xs mt-4">
+                    <i class="fas fa-chart-line"></i> Tap any segment to view details
+                </p>
+            </div>
+        </div>
+        
+        <!-- Spending Categories -->
+        <div class="mt-6">
+            <div class="bg-dark-card rounded-2xl shadow-3d p-6 card-3d border border-dark-border">
+                <div class="grid md:grid-cols-2 gap-6">
+                    @if (ViewBag.SpendingCategories != null)
+                    {
+                        foreach (var cat in ViewBag.SpendingCategories)
+                        {
+                            <div class="category-item flex justify-between items-center p-3 rounded-xl hover:bg-white/5 transition border border-transparent hover:border-dark-border cursor-pointer">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-tag text-blue-500 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-white">@cat.Category</p>
+                                        <p class="text-xs text-gray-500">Total · ₹@cat.Total.ToString("N2")</p>
+                                    </div>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-600"></i>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <!-- Active Goals -->
+        <div class="mt-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold text-white">Active Goals</h2>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @if (ViewBag.Goals != null && ViewBag.Goals.Count > 0)
+                {
+                    foreach(var goal in ViewBag.Goals)
+                    {
+                        var progress = goal.TargetAmount > 0 ? (goal.CurrentAmount / goal.TargetAmount) * 100 : 0;
+                        if(progress > 100) progress = 100;
+                        var isComplete = progress >= 100;
+
+                        <div class="bg-dark-card rounded-2xl shadow-3d p-6 card-3d border border-dark-border flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-4">
+                                    <div class="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-xl">
+                                        @goal.IconEmoji
+                                    </div>
+                                    <span class="text-xs font-semibold px-2 py-1 rounded-lg @(isComplete ? "bg-green-500/20 text-green-400" : "bg-dark-border text-gray-400")">
+                                        @(isComplete ? "Achieved" : goal.TargetDate.ToString("MMM yyyy"))
+                                    </span>
+                                </div>
+                                <h3 class="text-white font-semibold text-lg mb-1">@goal.Name</h3>
+                                <p class="text-xs text-gray-500 mb-4">You've saved <span class="font-semibold text-white">₹@goal.CurrentAmount.ToString("N0")</span> of ₹@goal.TargetAmount.ToString("N0")</p>
+                            </div>
+                            <div>
+                                <div class="w-full bg-dark-border rounded-full h-2 progress-3d mb-2">
+                                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-1000" style="width: @progress.ToString("0")%"></div>
+                                </div>
+                                <div class="flex justify-between items-center text-xs mt-3">
+                                    <span class="font-semibold text-blue-400">@progress.ToString("0")% <span class="text-gray-500 font-normal">reached</span></span>
+                                    <a href="/GoalSimulator" class="text-blue-500 hover:text-blue-400 hover:underline">Simulate <i class="fas fa-arrow-right ml-1"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="lg:col-span-3 bg-dark/50 border border-dark-border border-dashed rounded-2xl p-8 text-center cursor-pointer hover:bg-white/5 transition" onclick="openAddGoalModal()">
+                        <div class="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-bullseye text-blue-500 text-2xl"></i>
+                        </div>
+                        <h3 class="text-white font-medium">No Goals Set Yet</h3>
+                        <p class="text-sm text-gray-500 mt-2 max-w-sm mx-auto">Establish savings targets like buying a car or an emergency fund to accelerate your wealth building.</p>
+                        <button class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl btn-3d">Create Goal</button>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <!-- Idle Cash Opportunities -->
+        @if (ViewBag.IdleCashOpportunities != null && ViewBag.IdleCashOpportunities.Count > 0)
+        {
+            <div class="mt-6">
+                <h2 class="text-lg font-semibold text-white mb-4">Smart Opportunities</h2>
+                <div class="grid md:grid-cols-2 gap-4">
+                    @foreach (var opp in ViewBag.IdleCashOpportunities)
+                    {
+                        var potentialGain = opp.PotentialGain;
+                        <div class="bg-gradient-to-r from-amber-900/30 to-yellow-900/30 rounded-2xl p-5 border border-amber-500/20 card-3d">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm text-gray-400">@opp.BankName Savings</p>
+                                    <p class="text-2xl font-bold text-white mt-1">₹@opp.CurrentBalance.ToString("N0")</p>
+                                    <p class="text-sm text-amber-500 mt-2 font-medium">Earn +₹@potentialGain.ToString("N0") via @opp.BetterOptions[0].BankName FD!</p>
+                                </div>
+                                <div class="w-12 h-12 bg-amber-500/20 rounded-2xl flex items-center justify-center">
+                                    <i class="fas fa-arrow-trend-up text-amber-500 text-xl"></i>
+                                </div>
+                            </div>
+                            <a href="/Compare" class="block mt-4 w-full bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white py-2 rounded-xl transition font-medium text-sm btn-3d text-center">
+                                View FD Options
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+    
+    <!-- Add Account Modal -->
+    <div id="addAccountModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="absolute inset-0 bg-dark/80 backdrop-blur-sm" onclick="closeAddAccountModal()"></div>
+        
+        <div class="relative bg-dark-card border border-dark-border rounded-2xl shadow-2xl p-6 w-full max-w-lg mx-4 transform scale-95 transition-transform duration-300" id="addAccountModalContent">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-dark-border">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                        <i class="fas fa-university text-emerald-500 text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Link New Account</h3>
+                </div>
+                <button onclick="closeAddAccountModal()" class="text-gray-500 hover:text-white transition">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <form asp-controller="Dashboard" asp-action="AddAccount" method="post" id="addAccountForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-300 text-sm font-medium mb-1">Bank Name</label>
+                        <input type="text" name="BankName" required class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none transition" placeholder="e.g. State Bank of India">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Account Type</label>
+                            <select name="AccountType" class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition appearance-none">
+                                <option value="Savings">Savings</option>
+                                <option value="Current">Current</option>
+                                <option value="Salary">Salary</option>
+                                <option value="FD">Fixed Deposit (FD)</option>
+                                <option value="Credit">Credit Card</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Account Number</label>
+                            <input type="text" name="AccountNumber" class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none transition" placeholder="Last 4 digits or full">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Current Balance (₹)</label>
+                            <input type="number" step="0.01" min="0" name="Balance" required class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition" placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Interest Rate (%)</label>
+                            <input type="number" step="0.01" min="0" max="30" name="InterestRate" value="0.00" class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-3 mt-8">
+                    <button type="button" onclick="closeAddAccountModal()" class="flex-1 px-4 py-2.5 rounded-xl border border-dark-border text-gray-300 hover:bg-white/5 hover:text-white transition font-medium text-sm">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-[1.5] px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white shadow-lg shadow-green-500/20 transition font-bold text-sm">
+                        Connect Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Add Transaction Modal -->
+    <div id="addTransactionModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="absolute inset-0 bg-dark/80 backdrop-blur-sm" onclick="closeAddTransactionModal()"></div>
+        
+        <div class="relative bg-dark-card border border-dark-border rounded-2xl shadow-2xl p-6 w-full max-w-lg mx-4 transform scale-95 transition-transform duration-300" id="addTransactionModalContent">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-dark-border">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
+                        <i class="fas fa-receipt text-orange-500 text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Log Transaction</h3>
+                </div>
+                <button onclick="closeAddTransactionModal()" class="text-gray-500 hover:text-white transition">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <form asp-controller="Dashboard" asp-action="AddTransaction" method="post" id="addTransactionForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-300 text-sm font-medium mb-1">Source Account</label>
+                        <select name="AccountId" required class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition appearance-none cursor-pointer">
+                            <option value="">-- Choose Account --</option>
+                            @if (ViewBag.Accounts != null)
+                            {
+                                foreach (var acc in ViewBag.Accounts)
+                                {
+                                    <option value="@acc.Id">@acc.BankName - @acc.AccountType (Bal: ₹@acc.Balance.ToString("N0"))</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2">
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Merchant / Description</label>
+                            <input type="text" name="Merchant" required class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none transition" placeholder="e.g. Zomato, Rent, etc.">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Amount (₹)</label>
+                            <input type="number" step="0.01" min="0.01" name="Amount" required class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition" placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Flow / Type</label>
+                            <select name="Type" required class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition appearance-none">
+                                <option value="Debit">Debit (Money Out)</option>
+                                <option value="Credit">Credit (Money In)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Category</label>
+                            <select name="Category" required class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition appearance-none">
+                                <option value="Food & Dining">Food & Dining</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Groceries">Groceries</option>
+                                <option value="Bills & Utilities">Bills & Utilities</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Transport">Transport</option>
+                                <option value="Transfer">Transfer</option>
+                                <option value="Income">Income / Salary</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Date</label>
+                            <input type="date" name="Date" required class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition" value="@DateTime.Now.ToString("yyyy-MM-dd")">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-3 mt-8">
+                    <button type="button" onclick="closeAddTransactionModal()" class="flex-1 px-4 py-2.5 rounded-xl border border-dark-border text-gray-300 hover:bg-white/5 hover:text-white transition font-medium text-sm">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-[1.5] px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white shadow-lg shadow-orange-500/20 transition font-bold text-sm">
+                        Save Transaction
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Add Goal Modal -->
+    <div id="addGoalModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="absolute inset-0 bg-dark/80 backdrop-blur-sm" onclick="closeAddGoalModal()"></div>
+        
+        <div class="relative bg-dark-card border border-dark-border rounded-2xl shadow-2xl p-6 w-full max-w-lg mx-4 transform scale-95 transition-transform duration-300" id="addGoalModalContent">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-dark-border">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                        <i class="fas fa-bullseye text-blue-500 text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Set New Savings Goal</h3>
+                </div>
+                <button onclick="closeAddGoalModal()" class="text-gray-500 hover:text-white transition">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <form asp-controller="Dashboard" asp-action="AddGoal" method="post" id="addGoalForm">
+                <div class="space-y-4">
+                    <div class="flex gap-4">
+                        <div class="w-1/4">
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Emoji</label>
+                            <select name="IconEmoji" class="w-full px-2 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition appearance-none text-center text-xl cursor-pointer">
+                                <option value="🎯">🎯</option>
+                                <option value="🚗">🚗</option>
+                                <option value="🏠">🏠</option>
+                                <option value="✈️">✈️</option>
+                                <option value="🎓">🎓</option>
+                                <option value="🏥">🏥</option>
+                                <option value="💍">💍</option>
+                                <option value="📱">📱</option>
+                                <option value="💰">💰</option>
+                            </select>
+                        </div>
+                        <div class="w-3/4">
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Goal Name</label>
+                            <input type="text" name="Name" required class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none transition" placeholder="e.g. Dream Car, Paris Trip">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Target Amount (₹)</label>
+                            <input type="number" step="0.01" min="100" name="TargetAmount" required class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition" placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Current Saved (₹)</label>
+                            <input type="number" step="0.01" min="0" name="CurrentAmount" value="0.00" class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Monthly Contribution (₹)</label>
+                            <input type="number" step="0.01" min="0" name="MonthlyContribution" class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition" placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-sm font-medium mb-1">Target Date</label>
+                            <input type="date" name="TargetDate" required class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-gray-300 focus:border-blue-500 focus:outline-none transition">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-3 mt-8">
+                    <button type="button" onclick="closeAddGoalModal()" class="flex-1 px-4 py-2.5 rounded-xl border border-dark-border text-gray-300 hover:bg-white/5 hover:text-white transition font-medium text-sm">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-[1.5] px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-lg shadow-blue-500/20 transition font-bold text-sm">
+                        Create Goal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- UPI Scan & Pay Modal -->
+    <div id="upiModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="absolute inset-0 bg-dark/80 backdrop-blur-sm" onclick="closeUpiModal()"></div>
+        <div class="relative bg-dark-card border border-dark-border rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 transform scale-95 transition-transform duration-300" id="upiModalContent">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-dark-border">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
+                        <i class="fas fa-qrcode text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white tracking-tight leading-tight">UPI Transfer</h3>
+                        <p class="text-xs text-gray-400">Scan & Pay instantly</p>
+                    </div>
+                </div>
+                <button onclick="closeUpiModal()" class="text-gray-500 hover:text-white transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form asp-controller="Dashboard" asp-action="PayUpi" method="post">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-300 text-sm font-medium mb-1">Pay To (UPI ID)</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                                <i class="fas fa-at"></i>
+                            </span>
+                            <input type="text" name="upiId" required class="w-full pl-9 pr-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white placeholder-gray-600 focus:border-blue-500 focus:outline-none transition" placeholder="name@bank">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-300 text-sm font-medium mb-1">Amount (₹)</label>
+                        <input type="number" step="0.01" min="1" name="amount" required class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white font-medium focus:border-blue-500 focus:outline-none transition text-lg" placeholder="0.00">
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-300 text-sm font-medium mb-1">Source Account</label>
+                        <select name="accountId" required class="w-full px-4 py-2.5 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition appearance-none cursor-pointer">
+                            <option value="">-- Choose Account --</option>
+                            @if (ViewBag.Accounts != null)
+                            {
+                                foreach (var acc in ViewBag.Accounts)
+                                {
+                                    <option value="@acc.Id">@acc.BankName (Bal: ₹@acc.Balance.ToString("N0"))</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full mt-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold text-sm shadow-[0_0_20px_rgba(59,130,246,0.2)] transition btn-3d tracking-wide">
+                    SEND PAYMENT <i class="fas fa-paper-plane ml-1"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const ctx = document.getElementById('spendingChart')?.getContext('2d');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ChartLabels ?? new List<string>())),
+                    datasets: [{
+                        label: 'Spending',
+                        data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ChartData ?? new List<decimal>())),
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#3B82F6',
+                        pointBorderColor: '#0A0A0F',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1E1E2A',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#9CA3AF',
+                            padding: 12,
+                            cornerRadius: 12,
+                            callbacks: {
+                                label: (context) => '₹' + context.raw.toLocaleString()
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#1E1E2A', drawBorder: false },
+                            ticks: { 
+                                color: '#6B7280',
+                                callback: (value) => '₹' + value.toLocaleString()
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#6B7280' }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Modal Click handlers
+        function openAddAccountModal() {
+            const modal = document.getElementById('addAccountModal');
+            const content = document.getElementById('addAccountModalContent');
+            modal.classList.remove('hidden');
+            
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.classList.add('opacity-100');
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                });
+            });
+            
+            // Wire up escape key handler
+            document.addEventListener('keydown', handleEscapeKey);
+        }
+
+        function closeAddAccountModal() {
+            const modal = document.getElementById('addAccountModal');
+            const content = document.getElementById('addAccountModalContent');
+            
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+            
+            document.removeEventListener('keydown', handleEscapeKey);
+        }
+
+        function handleEscapeKey(e) {
+            if (e.key === 'Escape') {
+                closeAddAccountModal();
+                closeAddTransactionModal();
+                closeAddGoalModal();
+            }
+        }
+        
+        // Transaction Modal Javascript Toggle Handlers
+        function openAddTransactionModal() {
+            const modal = document.getElementById('addTransactionModal');
+            const content = document.getElementById('addTransactionModalContent');
+            modal.classList.remove('hidden');
+            
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.classList.add('opacity-100');
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                });
+            });
+            document.addEventListener('keydown', handleEscapeKey);
+        }
+
+        function closeAddTransactionModal() {
+            const modal = document.getElementById('addTransactionModal');
+            const content = document.getElementById('addTransactionModalContent');
+            
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+            
+            document.removeEventListener('keydown', handleEscapeKey);
+        }
+
+        // Add Goal Modal Script Controls
+        function openAddGoalModal() {
+            const modal = document.getElementById('addGoalModal');
+            const content = document.getElementById('addGoalModalContent');
+            modal.classList.remove('hidden');
+            
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.classList.add('opacity-100');
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                });
+            });
+            document.addEventListener('keydown', handleEscapeKey);
+        }
+
+        function closeAddGoalModal() {
+            const modal = document.getElementById('addGoalModal');
+            const content = document.getElementById('addGoalModalContent');
+            
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+            
+            document.removeEventListener('keydown', handleEscapeKey);
+        }
+
+        // UPI Modal Controls
+        function openUpiModal() {
+            const modal = document.getElementById('upiModal');
+            const content = document.getElementById('upiModalContent');
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.classList.add('opacity-100');
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                });
+            });
+            document.addEventListener('keydown', handleEscapeKey);
+        }
+
+        function closeUpiModal() {
+            const modal = document.getElementById('upiModal');
+            const content = document.getElementById('upiModalContent');
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+            document.removeEventListener('keydown', handleEscapeKey);
+        }
+
+        function handleEscapeKey(e) {
+            if (e.key === 'Escape') {
+                closeAddAccountModal();
+                closeAddTransactionModal();
+                closeAddGoalModal();
+                closeUpiModal();
+            }
+        }
+
+        document.querySelectorAll('.transaction-item, .category-item').forEach(item => {
+            item.addEventListener('click', () => console.log('Item clicked'));
+        });
+        
+        // Auto-dismiss toasts after 5 seconds
+        setTimeout(() => {
+            const tempMsgs = document.querySelectorAll('.absolute.top-4');
+            tempMsgs.forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(-20px)';
+                el.style.transition = 'all 0.5s ease-out';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\chatt\\source\\repos\\ViaYou\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou\\migrations\\20260331070415_addusersecuritycolumns.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|solutionrelative:viayou\\migrations\\20260331070415_addusersecuritycolumns.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C70BE51C-D638-A05F-C5FD-47B966CE053D}|ViaYou.Core\\ViaYou.Core.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou.core\\entities\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C70BE51C-D638-A05F-C5FD-47B966CE053D}|ViaYou.Core\\ViaYou.Core.csproj|solutionrelative:viayou.core\\entities\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C70BE51C-D638-A05F-C5FD-47B966CE053D}|ViaYou.Core\\ViaYou.Core.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou.core\\entities\\account.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C70BE51C-D638-A05F-C5FD-47B966CE053D}|ViaYou.Core\\ViaYou.Core.csproj|solutionrelative:viayou.core\\entities\\account.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou\\views\\transactions\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|solutionrelative:viayou\\views\\transactions\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou\\views\\notification\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|solutionrelative:viayou\\views\\notification\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|solutionrelative:viayou\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|solutionrelative:viayou\\controllers\\dashboardcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou\\controllers\\comparecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|solutionrelative:viayou\\controllers\\comparecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou\\views\\goalsimulator\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|solutionrelative:viayou\\views\\goalsimulator\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou\\controllers\\goalsimulatorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|solutionrelative:viayou\\controllers\\goalsimulatorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou\\views\\auth\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|solutionrelative:viayou\\views\\auth\\login.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou\\views\\auth\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|solutionrelative:viayou\\views\\auth\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|solutionrelative:viayou\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou\\views\\dashboard\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|solutionrelative:viayou\\views\\dashboard\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|c:\\users\\chatt\\source\\repos\\viayou\\viayou\\viayou.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{8A8FAA81-6CBE-E963-EBE2-9095299FB0B0}|ViaYou\\ViaYou.csproj|solutionrelative:viayou\\viayou.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "20260331070415_AddUserSecurityColumns.cs",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Migrations\\20260331070415_AddUserSecurityColumns.cs",
+              "RelativeDocumentMoniker": "ViaYou\\Migrations\\20260331070415_AddUserSecurityColumns.cs",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Migrations\\20260331070415_AddUserSecurityColumns.cs",
+              "RelativeToolTip": "ViaYou\\Migrations\\20260331070415_AddUserSecurityColumns.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-31T07:04:15.481Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou.Core\\Entities\\User.cs",
+              "RelativeDocumentMoniker": "ViaYou.Core\\Entities\\User.cs",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou.Core\\Entities\\User.cs",
+              "RelativeToolTip": "ViaYou.Core\\Entities\\User.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-31T07:00:46.237Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Account.cs",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou.Core\\Entities\\Account.cs",
+              "RelativeDocumentMoniker": "ViaYou.Core\\Entities\\Account.cs",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou.Core\\Entities\\Account.cs",
+              "RelativeToolTip": "ViaYou.Core\\Entities\\Account.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAC0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-30T20:20:28.596Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Views\\Transactions\\Index.cshtml",
+              "RelativeDocumentMoniker": "ViaYou\\Views\\Transactions\\Index.cshtml",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Views\\Transactions\\Index.cshtml",
+              "RelativeToolTip": "ViaYou\\Views\\Transactions\\Index.cshtml",
+              "ViewState": "AgIAAJ0AAAAAAAAAAAAgwKcAAADSAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-30T20:18:49.159Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Views\\Notification\\Index.cshtml",
+              "RelativeDocumentMoniker": "ViaYou\\Views\\Notification\\Index.cshtml",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Views\\Notification\\Index.cshtml",
+              "RelativeToolTip": "ViaYou\\Views\\Notification\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJUAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-30T19:09:14.847Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "ViaYou\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "ViaYou\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-30T15:55:53.468Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "DashboardController.cs",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Controllers\\DashboardController.cs",
+              "RelativeDocumentMoniker": "ViaYou\\Controllers\\DashboardController.cs",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Controllers\\DashboardController.cs",
+              "RelativeToolTip": "ViaYou\\Controllers\\DashboardController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-30T15:55:52.195Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "CompareController.cs",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Controllers\\CompareController.cs",
+              "RelativeDocumentMoniker": "ViaYou\\Controllers\\CompareController.cs",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Controllers\\CompareController.cs",
+              "RelativeToolTip": "ViaYou\\Controllers\\CompareController.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-30T15:55:08.11Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Views\\GoalSimulator\\Index.cshtml",
+              "RelativeDocumentMoniker": "ViaYou\\Views\\GoalSimulator\\Index.cshtml",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Views\\GoalSimulator\\Index.cshtml",
+              "RelativeToolTip": "ViaYou\\Views\\GoalSimulator\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-25T16:59:43.874Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "GoalSimulatorController.cs",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Controllers\\GoalSimulatorController.cs",
+              "RelativeDocumentMoniker": "ViaYou\\Controllers\\GoalSimulatorController.cs",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Controllers\\GoalSimulatorController.cs",
+              "RelativeToolTip": "ViaYou\\Controllers\\GoalSimulatorController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-25T16:58:51.763Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Register.cshtml",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Views\\Auth\\Register.cshtml",
+              "RelativeDocumentMoniker": "ViaYou\\Views\\Auth\\Register.cshtml",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Views\\Auth\\Register.cshtml",
+              "RelativeToolTip": "ViaYou\\Views\\Auth\\Register.cshtml",
+              "ViewState": "AgIAADAAAAAAAAAAAAAAADgAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-25T16:56:34.749Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Login.cshtml",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Views\\Auth\\Login.cshtml",
+              "RelativeDocumentMoniker": "ViaYou\\Views\\Auth\\Login.cshtml",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Views\\Auth\\Login.cshtml",
+              "RelativeToolTip": "ViaYou\\Views\\Auth\\Login.cshtml",
+              "ViewState": "AgIAAC8AAAAAAAAAAAAgwDMAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-25T16:56:19.575Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Views\\Dashboard\\Index.cshtml",
+              "RelativeDocumentMoniker": "ViaYou\\Views\\Dashboard\\Index.cshtml",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Views\\Dashboard\\Index.cshtml",
+              "RelativeToolTip": "ViaYou\\Views\\Dashboard\\Index.cshtml",
+              "ViewState": "AgIAACcAAAAAAAAAAAAgwC8AAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-25T16:16:07.303Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "ViaYou\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "ViaYou\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAF8AAAAAAAAAAADwv2wAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-25T16:02:05.328Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "ViaYou.csproj",
+              "DocumentMoniker": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\ViaYou.csproj",
+              "RelativeDocumentMoniker": "ViaYou\\ViaYou.csproj",
+              "ToolTip": "C:\\Users\\chatt\\source\\repos\\ViaYou\\ViaYou\\ViaYou.csproj",
+              "RelativeToolTip": "ViaYou\\ViaYou.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-03-25T15:58:31.594Z"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 298,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

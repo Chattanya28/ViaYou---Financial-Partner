@@ -1,0 +1,348 @@
+@model IEnumerable<ViaYou.Core.Entities.Transaction>
+@using System.Text.Json;
+
+@{
+    ViewData["Title"] = "Data Analytics Hub";
+}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl slide-in relative py-8">
+    
+    <!-- Action Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                <i class="fas fa-chart-line text-blue-500"></i>
+                Data Analytics Hub
+            </h1>
+            <p class="text-gray-400 mt-2 text-sm">Visualize multi-axis financial vectors dynamically over selected time bounds.</p>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <button onclick="exportJSONtoCSV()" class="px-5 py-2.5 bg-dark border border-dark-border hover:border-emerald-500/50 hover:bg-white/5 text-gray-300 hover:text-white rounded-xl transition text-sm font-medium flex gap-2 items-center btn-3d">
+                <i class="fas fa-file-csv text-emerald-500"></i> CSV Export
+            </button>
+            <button onclick="window.print()" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-[0_0_15px_rgba(59,130,246,0.2)] transition-all btn-3d flex gap-2 items-center text-sm">
+                <i class="fas fa-file-pdf"></i> Download PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Parameter Filter Matrix -->
+    <div class="bg-dark-card border border-dark-border rounded-3xl p-6 shadow-3d card-3d mb-8 relative z-20">
+        <form method="get" asp-action="Index" class="flex flex-col md:flex-row items-end gap-5 w-full">
+            <div class="flex-1 w-full relative">
+                <label class="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Historical Floor (Start Date)</label>
+                <div class="relative">
+                    <input type="date" name="startDate" value="@ViewBag.StartDate" class="w-full px-4 py-3 bg-dark border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition shadow-inner font-mono text-sm leading-tight appearance-none">
+                    <i class="fas fa-calendar-alt absolute right-4 top-1/2 -translate-y-1/2 text-blue-500 pointer-events-none"></i>
+                </div>
+            </div>
+            <div class="flex-1 w-full relative">
+                <label class="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Historical Ceiling (End Date)</label>
+                 <div class="relative">
+                    <input type="date" name="endDate" value="@ViewBag.EndDate" class="w-full px-4 py-3 bg-dark border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition shadow-inner font-mono text-sm leading-tight appearance-none">
+                     <i class="fas fa-calendar-check absolute right-4 top-1/2 -translate-y-1/2 text-blue-500 pointer-events-none"></i>
+                </div>
+            </div>
+            <div class="w-full md:w-auto">
+                <button type="submit" class="w-full h-[46px] px-8 bg-blue-600 flex items-center justify-center hover:bg-blue-500 text-white font-bold rounded-xl transition shadow-[0_0_15px_rgba(59,130,246,0.3)] btn-3d text-sm gap-2 whitespace-nowrap">
+                    Force Override Matrix <i class="fas fa-bolt text-amber-400"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Summary Metrics Data Row -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8 print-row">
+        <!-- Income Block -->
+        <div class="bg-dark-card border border-dark-border rounded-3xl p-6 shadow-3d card-3d relative overflow-hidden group">
+            <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-emerald-500/5 rounded-full z-0 group-hover:scale-150 transition-transform duration-700"></div>
+            <div class="relative z-10">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
+                    <i class="fas fa-arrow-down text-emerald-400"></i>
+                </div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Yield Stream</h3>
+                <p class="text-2xl font-bold text-emerald-400">₹@ViewBag.TotalIncome.ToString("N0")</p>
+            </div>
+        </div>
+
+        <!-- Expense Block -->
+        <div class="bg-dark-card border border-dark-border rounded-3xl p-6 shadow-3d card-3d relative overflow-hidden group">
+            <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-rose-500/5 rounded-full z-0 group-hover:scale-150 transition-transform duration-700"></div>
+            <div class="relative z-10">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center mb-4">
+                    <i class="fas fa-arrow-up text-rose-400"></i>
+                </div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Burn Rate</h3>
+                <p class="text-2xl font-bold text-rose-400">₹@ViewBag.TotalExpense.ToString("N0")</p>
+            </div>
+        </div>
+
+        <!-- Savings Delta Block -->
+        <div class="bg-dark-card border border-dark-border rounded-3xl p-6 shadow-3d card-3d relative overflow-hidden group">
+            <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-blue-500/5 rounded-full z-0 group-hover:scale-150 transition-transform duration-700"></div>
+            <div class="relative z-10">
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4">
+                    <i class="fas fa-piggy-bank text-blue-400"></i>
+                </div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Savings Trajectory</h3>
+                <p class="text-2xl font-bold @(ViewBag.NetSavings >= 0 ? "text-blue-400" : "text-rose-400")">₹@ViewBag.NetSavings.ToString("N0")</p>
+                <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider font-semibold">Over Target Window</p>
+            </div>
+        </div>
+
+        <!-- Master Liquid Output -->
+        <div class="bg-dark border border-indigo-500/20 rounded-3xl p-6 shadow-3d card-3d relative overflow-hidden group">
+            <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/10 z-0"></div>
+            <div class="relative z-10 h-full flex flex-col justify-center">
+                <h3 class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2"><i class="fas fa-diamond mr-1 text-[10px]"></i> Base Net Worth</h3>
+                <p class="text-3xl font-bold text-white tracking-tight">₹@ViewBag.CurrentNetWorth.ToString("N0")</p>
+                <p class="text-[10px] text-gray-500 mt-1 uppercase tracking-wider font-medium">As Of @DateTime.Now.ToString("MMM dd")</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tier 1 Graphics: Area & Bar -->
+    <div class="grid lg:grid-cols-2 gap-8 mb-8 print-break">
+        <!-- Area Chart: Dynamic Backward Net Worth Trajectory -->
+        <div class="bg-dark-card border border-dark-border rounded-3xl p-6 shadow-3d card-3d">
+            <h3 class="text-white font-bold text-lg mb-6 flex items-center gap-2"><i class="fas fa-wave-square text-indigo-500"></i> Lifetime Trajectory Area Matrix</h3>
+            <div class="relative h-72 w-full">
+                <canvas id="netWorthAreaChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Bar Chart: Income/Expense Direct Comparison -->
+        <div class="bg-dark-card border border-dark-border rounded-3xl p-6 shadow-3d card-3d">
+            <h3 class="text-white font-bold text-lg mb-6 flex items-center gap-2"><i class="fas fa-chart-column text-emerald-500"></i> Yield vs Burn Ratios</h3>
+            <div class="relative h-72 w-full">
+                <canvas id="incomeExpenseBarChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tier 2 Graphics: Line & Log Data -->
+    <div class="grid lg:grid-cols-3 gap-8 print-break">
+        <!-- Trends: Line Graph over Top 2 Spending -->
+        <div class="lg:col-span-1 bg-dark-card border border-dark-border rounded-3xl p-6 shadow-3d card-3d">
+            <h3 class="text-white font-bold text-lg mb-2 flex items-center gap-2 text-sm"><i class="fas fa-chart-line text-amber-500"></i> Micro Trend Lines</h3>
+            <p class="text-xs text-gray-500 mb-6">Tracking top 2 highest bandwidth spending blocks dynamically over active bounds.</p>
+            <div class="relative h-60 w-full flex justify-center items-center">
+                @if (((List<string>)ViewBag.TopCategoriesNames).Count == 0)
+                {
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-ghost text-3xl mb-3 opacity-20"></i>
+                        <p class="text-xs">No active trend matrices identified.</p>
+                    </div>
+                }
+                else
+                {
+                    <canvas id="spendingTrendLineChart"></canvas>
+                }
+            </div>
+        </div>
+
+        <!-- Raw Log Database (Hidden for PDF normally but we will render a condensed view) -->
+        <div class="lg:col-span-2 bg-dark-card border border-dark-border rounded-3xl shadow-3d card-3d overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-dark-border flex justify-between items-center">
+                <h3 class="text-white font-bold text-lg flex items-center gap-2"><i class="fas fa-database text-blue-500"></i> Data Frame Scraper</h3>
+                <span class="text-xs text-gray-500 font-bold uppercase tracking-widest bg-dark px-3 py-1 rounded-full border border-dark-border">
+                    @Model.Count() Bounds Hit
+                </span>
+            </div>
+            <div class="overflow-x-auto max-h-[300px] bg-dark relative hide-scrollbar">
+                <table class="w-full text-left border-collapse" id="exportTargetTable">
+                    <thead class="sticky top-0 bg-dark z-10 shadow-sm border-b border-dark-border">
+                        <tr class="text-gray-400 text-[10px] uppercase tracking-widest font-bold">
+                            <th class="p-4 px-6">Timestamp Marker</th>
+                            <th class="p-4">Entity Key</th>
+                            <th class="p-4">Bandwidth</th>
+                            <th class="p-4 text-right px-6">Sum Output</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-dark-border/50 text-sm font-medium">
+                        @foreach (var tx in Model.Take(50)) // Limit max render bounds inside widget
+                        {
+                            <tr class="hover:bg-white/5 transition break-inside-avoid">
+                                <td class="p-4 px-6 text-gray-400 text-xs">@tx.Date.ToString("yyyy-MM-dd HH:mm")</td>
+                                <td class="p-4 text-white">@tx.Merchant</td>
+                                <td class="p-4 text-gray-500 text-xs">@tx.Category</td>
+                                <td class="p-4 px-6 text-right @(tx.Type == "Credit" ? "text-emerald-500" : "text-gray-300")">
+                                    @(tx.Type == "Credit" ? "+" : "-")₹@tx.Amount.ToString("N0")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                 @if(Model.Count() > 50)
+                 {
+                     <div class="p-3 text-center text-xs text-gray-500 font-bold tracking-widest border-t border-dark-border uppercase bg-dark-card">Display truncated natively to 50 logs matching performance footprint.</div>
+                 }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Pulling Chart.js globally assumed from Layout -->
+    <script>
+        // Shared X-Axis
+        const labels = @Html.Raw(JsonSerializer.Serialize(ViewBag.MonthLabels ?? new List<string>()));
+        
+        // --- 1. Area Chart (Net Worth Trajectory) ---
+        const nwData = @Html.Raw(JsonSerializer.Serialize(ViewBag.NetWorthData ?? new List<decimal>()));
+        const areaCtx = document.getElementById('netWorthAreaChart').getContext('2d');
+        
+        // Dynamic Gradient setup
+        let gradientNW = areaCtx.createLinearGradient(0, 0, 0, 400);
+        gradientNW.addColorStop(0, 'rgba(99, 102, 241, 0.4)'); // Indigo Start
+        gradientNW.addColorStop(1, 'rgba(99, 102, 241, 0.01)'); // Dark base
+        
+        new Chart(areaCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Net Worth Evaluation',
+                    data: nwData,
+                    borderColor: '#6366f1',
+                    backgroundColor: gradientNW,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#6366f1',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { backgroundColor: '#111115', borderColor: '#333340', borderWidth: 1, padding: 12, bodyFont: {size: 14} }
+                },
+                scales: {
+                    x: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#6b7280', font: {size: 10} } },
+                    y: { 
+                        grid: { color: 'rgba(255, 255, 255, 0.05)', borderDash: [5, 5] }, 
+                        ticks: { color: '#6b7280', callback: function(value) { return '₹' + (value/1000).toFixed(0) + 'k'; } } 
+                    }
+                }
+            }
+        });
+
+        // --- 2. Bar Chart (Income vs Expense) ---
+        const incData = @Html.Raw(JsonSerializer.Serialize(ViewBag.IncomeBarData ?? new List<decimal>()));
+        const expData = @Html.Raw(JsonSerializer.Serialize(ViewBag.ExpenseBarData ?? new List<decimal>()));
+        const barCtx = document.getElementById('incomeExpenseBarChart').getContext('2d');
+        
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Total Inflow',
+                        data: incData,
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)', // Emerald
+                        borderRadius: 4,
+                        maxBarThickness: 30
+                    },
+                    {
+                        label: 'Total Outflow',
+                        data: expData,
+                        backgroundColor: 'rgba(244, 63, 94, 0.8)', // Rose
+                        borderRadius: 4,
+                        maxBarThickness: 30
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#9ca3af', font: {size: 11} }, position: 'top' },
+                    tooltip: { backgroundColor: '#111115', borderColor: '#333340', borderWidth: 1 }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#6b7280', font: {size: 10} } },
+                    y: { 
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
+                        ticks: { color: '#6b7280', callback: function(value) { return '₹' + (value/1000).toFixed(0) + 'k'; } } 
+                    }
+                }
+            }
+        });
+
+        // --- 3. Line Chart (Spending Trends) ---
+        const lineCtxObj = document.getElementById('spendingTrendLineChart');
+        if (lineCtxObj) {
+            const lineCtx = lineCtxObj.getContext('2d');
+            const trendDict = @Html.Raw(JsonSerializer.Serialize(ViewBag.TopCategoriesTrends ?? new Dictionary<string, List<decimal>>()));
+            const keys = Object.keys(trendDict);
+            
+            // Hardcode 2 unique colors for up to 2 top tracking lines
+            const lineColors = ['#f59e0b', '#3b82f6']; // Amber, Blue
+            
+            let datasetArray = [];
+            keys.forEach((key, index) => {
+                datasetArray.push({
+                    label: key,
+                    data: trendDict[key],
+                    borderColor: lineColors[index % lineColors.length],
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 2,
+                    pointHoverRadius: 5
+                });
+            });
+
+            new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasetArray
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#9ca3af', font: {size: 11, weight: 'bold'} }, position: 'bottom' },
+                        tooltip: { backgroundColor: '#111115', borderColor: '#333340', borderWidth: 1 }
+                    },
+                    scales: {
+                        x: { display: false },
+                        y: { 
+                            grid: { color: 'rgba(255, 255, 255, 0.05)', borderDash: [2, 2] }, 
+                            ticks: { display: false } 
+                        }
+                    }
+                }
+            });
+        }
+
+        // Export Functionality Engine
+        function exportJSONtoCSV() {
+            var csv = [];
+            var rows = document.querySelectorAll("#exportTargetTable tr");
+            
+            for (var i = 0; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll("td, th");
+                for (var j = 0; j < cols.length; j++) 
+                    row.push('"' + cols[j].innerText.replace(/"/g, '""').replace(/\n/g, " ") + '"');
+                csv.push(row.join(","));        
+            }
+
+            var csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+            var downloadLink = document.createElement("a");
+            downloadLink.download = "ViaYou_Analytics_Report.csv";
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+        }
+    </script>
+}

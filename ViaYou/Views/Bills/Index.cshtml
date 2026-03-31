@@ -1,0 +1,335 @@
+@model IEnumerable<ViaYou.Core.Entities.Bill>
+
+@{
+    ViewData["Title"] = "Liability Tracker";
+    var pendingBills = Model?.Where(b => b.Status == "Pending" || b.Status == "Overdue").OrderBy(b => b.DueDate).ToList() ?? new List<ViaYou.Core.Entities.Bill>();
+    var frequentBills = Model?.Where(b => b.IsFrequent && b.Status == "Pending").ToList() ?? new List<ViaYou.Core.Entities.Bill>();
+    var paidBills = Model?.Where(b => b.Status == "Paid").OrderByDescending(b => b.DueDate).ToList() ?? new List<ViaYou.Core.Entities.Bill>();
+}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl slide-in relative py-8">
+    
+    <!-- Action Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                <i class="fas fa-file-invoice-dollar text-purple-500"></i>
+                Liability Tracker
+            </h1>
+            <p class="text-gray-400 mt-2 text-sm">Active obligations and scheduled payment structures.</p>
+        </div>
+        
+        <button onclick="openAddBillModal()" class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all btn-3d flex items-center gap-2 text-sm">
+            <i class="fas fa-plus"></i> Attach New Biller
+        </button>
+    </div>
+
+    <!-- Frequent One-Click Array -->
+    @if (frequentBills.Any())
+    {
+        <div class="mb-8 relative z-10">
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <i class="fas fa-bolt text-amber-500"></i> Priority 1-Click Execution
+            </h2>
+            <div class="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar">
+                @foreach (var fb in frequentBills)
+                {
+                    <div class="min-w-[280px] bg-dark-card border border-dark-border rounded-3xl p-5 shadow-3d card-3d snap-start group hover:border-purple-500/50 transition-colors">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
+                                    <i class="fas fa-file-invoice text-purple-400"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-white font-bold text-sm truncate max-w-[120px]">@fb.BillerName</h3>
+                                    <p class="text-xs text-gray-500 font-medium font-mono">@(string.IsNullOrEmpty(fb.AccountNumber) ? "N/A" : $"..{fb.AccountNumber.Substring(Math.Max(0, fb.AccountNumber.Length - 4))}")</p>
+                                </div>
+                            </div>
+                            <span class="text-purple-400 font-bold">₹@fb.Amount.ToString("N0")</span>
+                        </div>
+                        
+                        <!-- 1 Click Payload -->
+                        <button onclick="openPayDialog(@fb.Id, '@fb.BillerName', @fb.Amount)" class="w-full py-2 bg-gradient-to-r from-purple-600/20 to-indigo-600/20 hover:from-purple-600 hover:to-indigo-600 text-purple-400 hover:text-white border border-purple-500/30 rounded-xl font-bold text-xs transition-all shadow-[0_0_15px_rgba(168,85,247,0.1)] group-hover:shadow-[0_0_20px_rgba(168,85,247,0.3)]">
+                            Execute Transfer
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Main Grid Workspace -->
+    <div class="grid lg:grid-cols-3 gap-8 relative z-0">
+        
+        <!-- Upcoming & Overdue Ledger -->
+        <div class="lg:col-span-2 space-y-4">
+            <h2 class="text-lg font-bold text-white mb-4">Pending Liabilities</h2>
+            
+            @if (pendingBills.Any())
+            {
+                foreach (var bill in pendingBills)
+                {
+                    var isOverdue = bill.Status == "Overdue";
+                    var daysUntil = (bill.DueDate.Date - DateTime.Now.Date).Days;
+                    var statusColorClass = isOverdue ? "text-rose-500" : (daysUntil <= 3 ? "text-amber-500" : "text-emerald-500");
+                    var bgAccentColorClass = isOverdue ? "bg-rose-500/10" : (daysUntil <= 3 ? "bg-amber-500/10" : "bg-emerald-500/10");
+                    
+                    <div class="bg-dark-card rounded-3xl shadow-3d border border-dark-border p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 card-3d transition hover:bg-white/5 relative overflow-hidden group">
+                        
+                        <!-- Warning Strip -->
+                        @if (isOverdue)
+                        {
+                            <div class="absolute top-0 left-0 w-1 h-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]"></div>
+                        }
+
+                        <div class="flex items-start md:items-center gap-4 w-full md:w-auto">
+                            <div class="w-14 h-14 rounded-2xl @bgAccentColorClass border border-dark-border flex items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-transform">
+                                <i class="fas fa-file-invoice @statusColorClass text-2xl"></i>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-white font-bold text-lg leading-tight mb-1">@bill.BillerName</h3>
+                                <div class="flex items-center gap-3 text-xs text-gray-500 font-medium">
+                                    <span class="px-2 py-0.5 bg-dark border border-dark-border rounded text-[10px] uppercase tracking-wider text-gray-400">@bill.Category</span>
+                                    <span>Acc: @(string.IsNullOrEmpty(bill.AccountNumber) ? "Unlinked" : bill.AccountNumber)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row items-start md:items-center justify-between w-full md:w-auto gap-4 md:gap-8 flex-1 md:justify-end">
+                            <div class="text-left md:text-right">
+                                <p class="text-2xl font-bold @(isOverdue ? "text-rose-500" : "text-white")">₹@bill.Amount.ToString("N0")</p>
+                                <p class="text-xs font-bold mt-1 @statusColorClass flex items-center gap-1">
+                                    <i class="fas fa-clock"></i>
+                                    @(isOverdue ? "OVERDUE LIABILITY" : (daysUntil == 0 ? "DUE TODAY" : $"Due in {daysUntil} Days"))
+                                </p>
+                            </div>
+                            
+                            <button onclick="openPayDialog(@bill.Id, '@bill.BillerName', @bill.Amount)" class="w-full md:w-auto px-6 py-2.5 bg-dark border border-dark-border hover:border-blue-500/50 text-blue-400 font-bold text-sm rounded-xl transition-all btn-3d shadow-sm group-hover:shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+                                Initialize Payment
+                            </button>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="bg-dark/50 border border-emerald-500/20 border-dashed rounded-3xl p-16 text-center card-3d mt-4">
+                    <div class="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                        <i class="fas fa-tasks-alt text-emerald-500 text-3xl"></i>
+                    </div>
+                    <h3 class="text-white font-bold text-2xl mb-2">Zero Active Liabilities</h3>
+                    <p class="text-sm text-gray-500">All registered trackers are fully compensated. You are operating at optimal liquid latency.</p>
+                </div>
+            }
+        </div>
+
+        <!-- Historical Archive -->
+        <div class="lg:col-span-1">
+            <h2 class="text-lg font-bold text-white mb-4">Archived Traces</h2>
+            <div class="bg-dark-card rounded-3xl shadow-3d border border-dark-border p-6 overflow-hidden card-3d">
+                @if (paidBills.Any())
+                {
+                    <ul class="space-y-5">
+                        @foreach(var bill in paidBills.Take(6))
+                        {
+                            <li class="flex justify-between items-center group cursor-default">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-xl bg-dark border border-dark-border flex justify-center items-center group-hover:bg-white/5 transition">
+                                        <i class="fas fa-check text-emerald-500/50"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-300">@bill.BillerName</p>
+                                        <p class="text-xs text-gray-500 font-medium">Cleared @bill.DueDate.ToString("MMM dd")</p>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-bold text-emerald-500/70">₹@bill.Amount.ToString("N0")</span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                     <div class="text-center py-10 opacity-50">
+                        <i class="fas fa-ghost text-4xl text-gray-600 mb-4"></i>
+                        <p class="text-xs text-gray-500 font-medium">No archived payments found in active bounds.</p>
+                     </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Bill Setup Modal -->
+<div id="addBillModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="absolute inset-0 bg-dark/90 backdrop-blur-md" onclick="closeAddBillModal()"></div>
+    
+    <div class="relative bg-dark-card border border-dark-border rounded-3xl shadow-[0_0_50px_rgba(168,85,247,0.15)] p-8 w-full max-w-lg mx-4 transform scale-95 transition-transform duration-300" id="addBillModalContent">
+        <div class="flex items-center justify-between mb-8 pb-5 border-b border-dark-border">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shadow-inner">
+                    <i class="fas fa-network-wired text-purple-400 text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white tracking-wide">Attach Biller Link</h3>
+            </div>
+            <button onclick="closeAddBillModal()" class="text-gray-500 hover:text-white transition bg-dark border border-dark-border w-8 h-8 rounded-full flex items-center justify-center">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+        
+        <form asp-controller="Bills" asp-action="AddBill" method="post">
+            <div class="space-y-5">
+                
+                <div class="grid grid-cols-5 gap-4">
+                    <div class="col-span-3">
+                        <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wide">Biller Entity Name</label>
+                        <input type="text" name="BillerName" required class="w-full px-4 py-3 bg-dark/50 border border-dark-border rounded-xl text-white placeholder-gray-600 focus:border-purple-500 focus:outline-none transition text-sm" placeholder="e.g. Jio Broadband">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wide">Account N°</label>
+                        <input type="text" name="AccountNumber" class="w-full px-4 py-3 bg-dark/50 border border-dark-border rounded-xl text-white placeholder-gray-600 focus:border-purple-500 focus:outline-none transition text-sm font-mono" placeholder="4900-1234">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wide">Amount (₹)</label>
+                        <input type="number" step="0.01" min="1" name="Amount" required class="w-full px-4 py-3 bg-dark/50 border border-dark-border rounded-xl text-white font-bold focus:border-purple-500 focus:outline-none transition shadow-inner" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wide">Due Date</label>
+                        <input type="date" name="DueDate" required class="w-full px-4 py-3 bg-dark/50 border border-dark-border rounded-xl text-gray-300 focus:border-purple-500 focus:outline-none transition text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-gray-400 text-xs font-semibold mb-2 uppercase tracking-wide">Taxonomy Category</label>
+                    <select name="Category" required class="w-full px-4 py-3 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-purple-500 focus:outline-none transition appearance-none cursor-pointer text-sm">
+                        <option value="Electricity">Electricity</option>
+                        <option value="Water">Water</option>
+                        <option value="Gas">Gas Pipeline</option>
+                        <option value="Broadband">Broadband / Internet</option>
+                        <option value="Mobile">Mobile Postpaid</option>
+                        <option value="Credit Card">Credit Card Debt</option>
+                        <option value="Rent/Mortgage">Rent / Mortgage</option>
+                    </select>
+                </div>
+                
+                <div class="flex gap-6 mt-4 pt-4 border-t border-dark-border">
+                    <label class="flex items-center cursor-pointer group">
+                        <div class="relative">
+                            <input type="checkbox" name="IsAutoPay" value="true" class="sr-only peer">
+                            <div class="w-9 h-5 bg-dark border border-dark-border rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all shadow-inner"></div>
+                        </div>
+                        <span class="ml-2 text-xs font-medium text-gray-400 group-hover:text-gray-300 inline-flex items-center"><i class="fas fa-robot text-purple-500 mr-2 opacity-70"></i> Auto-Pay Loop</span>
+                    </label>
+                    
+                    <label class="flex items-center cursor-pointer group">
+                        <div class="relative">
+                            <input type="checkbox" name="IsFrequent" value="true" class="sr-only peer">
+                            <div class="w-9 h-5 bg-dark border border-dark-border rounded-full peer peer-checked:bg-amber-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 peer-checked:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all shadow-inner"></div>
+                        </div>
+                        <span class="ml-2 text-xs font-medium text-amber-500/70 group-hover:text-amber-500 inline-flex items-center"><i class="fas fa-bolt mr-2 w-3"></i> 1-Click Interface</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex space-x-4 mt-8">
+                <button type="button" onclick="closeAddBillModal()" class="flex-[1] px-4 py-3 rounded-xl border border-dark-border text-gray-400 hover:bg-white/5 transition font-bold text-sm btn-3d">Abort</button>
+                <button type="submit" class="flex-[2] px-4 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold shadow-[0_0_15px_rgba(168,85,247,0.4)] transition btn-3d text-sm flex items-center justify-center gap-2">
+                    <i class="fas fa-satellite-dish"></i> Upload Tracker
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Quick Pay Execution Terminal -->
+<div id="payBillModal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="absolute inset-0 bg-dark/95 backdrop-blur-lg" onclick="closePayModal()"></div>
+    
+    <div class="relative bg-dark-card border border-blue-500/20 rounded-3xl shadow-[0_0_50px_rgba(59,130,246,0.1)] p-8 w-full max-w-sm mx-4 transform scale-95 transition-transform duration-300" id="payBillModalContent">
+        
+        <div class="text-center mb-8 relative">
+            <div class="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center mx-auto mb-4 animate-[pulse_2s_infinite]">
+                 <i class="fas fa-paper-plane text-blue-400 text-2xl relative left-[-2px]"></i>
+            </div>
+            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Authorization Target</h3>
+            <p class="text-2xl font-bold text-white leading-tight mb-2 truncate" id="payBillerTag">X</p>
+            <div class="inline-flex items-center justify-center bg-dark border border-dark-border px-4 py-1.5 rounded-full">
+                <span class="text-xl font-bold text-emerald-400">₹<span id="payAmountTag">X</span></span>
+            </div>
+        </div>
+        
+        <form asp-controller="Bills" asp-action="PayBill" method="post">
+            <input type="hidden" name="billId" id="payBillIdInput" />
+            
+            <div class="mb-8">
+                <label class="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Select Funding Node</label>
+                <div class="relative">
+                    <select name="accountId" required class="w-full px-4 py-3.5 bg-dark border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition appearance-none cursor-pointer shadow-inner text-sm font-medium pl-10">
+                        <option value="">-- Interface Link --</option>
+                        @if (ViewBag.Accounts != null)
+                        {
+                            foreach (var acc in ViewBag.Accounts)
+                            {
+                                <option value="@acc.Id">@acc.BankName • ₹@acc.Balance.ToString("N0")</option>
+                            }
+                        }
+                    </select>
+                    <i class="fas fa-building-columns absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-xs pointer-events-none"></i>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button type="button" onclick="closePayModal()" class="w-1/3 py-3 rounded-xl border border-dark-border text-gray-400 font-bold hover:bg-white/5 transition text-sm">Cancel</button>
+                <button type="submit" class="w-2/3 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition shadow-[0_0_15px_rgba(59,130,246,0.5)] btn-3d text-sm relative overflow-hidden group">
+                    <span class="relative z-10 flex items-center justify-center gap-2">Execute Ping <i class="fas fa-bolt text-amber-400"></i></span>
+                    <div class="absolute inset-0 h-full w-full scale-0 rounded-xl transition-all duration-300 group-hover:scale-100 group-hover:bg-blue-400/20 z-0"></div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function triggerModal(modalId, contentId) {
+            const modal = document.getElementById(modalId);
+            const content = document.getElementById(contentId);
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.classList.add('opacity-100');
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                });
+            });
+        }
+
+        function dismissModal(modalId, contentId) {
+            const modal = document.getElementById(modalId);
+            const content = document.getElementById(contentId);
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function openAddBillModal() { triggerModal('addBillModal', 'addBillModalContent'); }
+        function closeAddBillModal() { dismissModal('addBillModal', 'addBillModalContent'); }
+
+        function openPayDialog(id, biller, amount) {
+            document.getElementById('payBillIdInput').value = id;
+            document.getElementById('payBillerTag').innerText = biller;
+            document.getElementById('payAmountTag').innerText = amount.toLocaleString('en-IN');
+            triggerModal('payBillModal', 'payBillModalContent');
+        }
+        function closePayModal() { dismissModal('payBillModal', 'payBillModalContent'); }
+    </script>
+}

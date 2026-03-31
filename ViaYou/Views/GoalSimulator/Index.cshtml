@@ -1,0 +1,330 @@
+@{
+    ViewData["Title"] = "Goal Simulator - ViaYou";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        /* Custom Animations */
+        @@keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        
+        @@keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.6); }
+        }
+        .pulse-glow {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+        
+        .result-card {
+            transition: all 0.3s ease;
+        }
+        .result-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        /* Range Slider Styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: #1E1E2A;
+            height: 6px;
+            border-radius: 5px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        
+        /* Select Styling */
+        select {
+            cursor: pointer;
+        }
+        select option {
+            background: #111115;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-8 slide-in">
+        
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <div>
+                <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2">
+                    <i class="fas fa-bullseye text-blue-500 mr-3"></i>
+                    Goal Simulator
+                </h1>
+                <p class="text-gray-400">Visualize how small changes can accelerate your financial goals</p>
+            </div>
+            <a href="/Dashboard" class="px-5 py-2.5 bg-dark-card border border-dark-border rounded-xl text-gray-300 hover:text-white hover:border-blue-500/30 transition-all flex items-center gap-2">
+                <i class="fas fa-arrow-left text-sm"></i>
+                Back to Dashboard
+            </a>
+        </div>
+        
+        @if (ViewBag.Goals == null || ViewBag.Goals.Count == 0)
+        {
+            <!-- No Goals Message -->
+            <div class="bg-dark-card rounded-2xl p-12 text-center border border-dark-border">
+                <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-bullseye text-blue-500 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-2">No Goals Found</h3>
+                <p class="text-gray-400 mb-6">Create your first financial goal to start optimizing!</p>
+                <a href="/Dashboard" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl text-white font-medium hover:from-blue-500 hover:to-purple-500 transition">
+                    <i class="fas fa-plus"></i>
+                    Create Goal
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="grid lg:grid-cols-2 gap-8">
+                
+                <!-- Left Column: Goal Selection & Current Progress -->
+                <div class="space-y-6">
+                    <!-- Goal Selection Card -->
+                    <div class="bg-dark-card rounded-2xl p-6 border border-dark-border card-3d">
+                        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-flag-checkered text-blue-500"></i>
+                            Select Your Goal
+                        </h2>
+                        <select id="goalSelect" class="w-full px-4 py-3 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition">
+                            @foreach (var goal in ViewBag.Goals)
+                            {
+                                <option value="@goal.Id" 
+                                        data-target="@goal.TargetAmount" 
+                                        data-current="@goal.CurrentAmount" 
+                                        data-monthly="@goal.MonthlyContribution"
+                                        data-name="@goal.Name"
+                                        data-icon="@goal.IconEmoji">
+                                    @{
+                                        var pct = goal.TargetAmount > 0 ? (goal.CurrentAmount / goal.TargetAmount) * 100 : 0;
+                                    }
+                                    @goal.IconEmoji @goal.Name - @pct.ToString("0")% Complete (₹@goal.CurrentAmount.ToString("N0") / ₹@goal.TargetAmount.ToString("N0"))
+                                </option>
+                            }
+                        </select>
+                        
+                        <!-- Current Goal Progress -->
+                        <div class="mt-6 p-4 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-xl border border-blue-500/10">
+                            <div id="goalDetails" class="space-y-3">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-400">Progress</span>
+                                    <span id="progressPercent" class="text-blue-400 font-semibold">0%</span>
+                                </div>
+                                <div class="w-full bg-dark-border rounded-full h-2 progress-3d">
+                                    <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-400">Current: <span id="currentAmount" class="text-white">₹0</span></span>
+                                    <span class="text-gray-400">Target: <span id="targetAmount" class="text-white">₹0</span></span>
+                                </div>
+                                <div class="flex justify-between text-sm pt-2 border-t border-dark-border">
+                                    <span class="text-gray-400">Monthly Contribution</span>
+                                    <span id="monthlyAmount" class="text-green-400 font-semibold">₹0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tips Card -->
+                    <div class="bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-2xl p-5 border border-blue-500/20">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-lightbulb text-yellow-500 text-xl mt-1"></i>
+                            <div>
+                                <h3 class="text-white font-semibold mb-1">Pro Tip</h3>
+                                <p class="text-gray-400 text-sm">Moving idle cash from savings to a high-interest FD can significantly accelerate your goal achievement. Try different amounts below!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column: Simulator Controls -->
+                <div class="space-y-6">
+                    <!-- Simulator Card -->
+                    <div class="bg-dark-card rounded-2xl p-6 border border-dark-border card-3d">
+                        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-chart-line text-green-500"></i>
+                            What If You...
+                        </h2>
+                        
+                        <!-- Amount Slider -->
+                        <div class="mb-6">
+                            <label class="block text-gray-300 text-sm font-medium mb-3">Move idle cash from savings</label>
+                            <input type="range" id="amountSlider" min="1000" max="100000" step="1000" value="50000" class="w-full">
+                            <div class="flex justify-between mt-2">
+                                <span class="text-xs text-gray-500">₹1,000</span>
+                                <span id="amountValue" class="text-blue-400 font-semibold">₹50,000</span>
+                                <span class="text-xs text-gray-500">₹1,00,000</span>
+                            </div>
+                        </div>
+                        
+                        <!-- FD Selection -->
+                        <div class="mb-6">
+                            <label class="block text-gray-300 text-sm font-medium mb-3">Move to FD at</label>
+                            <select id="fdSelect" class="w-full px-4 py-3 bg-dark/50 border border-dark-border rounded-xl text-white focus:border-blue-500 focus:outline-none transition">
+                                @if (ViewBag.BankPolicies != null)
+                                {
+                                    @foreach (var fd in ViewBag.BankPolicies)
+                                    {
+                                        <option value="@fd.InterestRate">@fd.BankName - @fd.InterestRate% p.a.</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        
+                        <!-- Simulate Button -->
+                        <button id="simulateBtn" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-semibold py-3 rounded-xl transition-all shadow-lg btn-3d flex items-center justify-center gap-2">
+                            <i class="fas fa-chart-simple"></i>
+                            See Impact →
+                        </button>
+                    </div>
+                    
+                    <!-- Results Card (Hidden Initially) -->
+                    <div id="resultsCard" class="bg-dark-card rounded-2xl p-6 border border-dark-border hidden">
+                        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-chart-line text-blue-500"></i>
+                            Impact Analysis
+                        </h2>
+                        <div id="impactContent"></div>
+                        <button id="applyStrategyBtn" class="mt-6 w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold py-2.5 rounded-xl transition-all btn-3d flex items-center justify-center gap-2">
+                            <i class="fas fa-check-circle"></i>
+                            Apply This Strategy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <script>
+        // DOM Elements
+        const goalSelect = document.getElementById('goalSelect');
+        const amountSlider = document.getElementById('amountSlider');
+        const amountValue = document.getElementById('amountValue');
+        const simulateBtn = document.getElementById('simulateBtn');
+        const resultsCard = document.getElementById('resultsCard');
+        const impactContent = document.getElementById('impactContent');
+        const applyStrategyBtn = document.getElementById('applyStrategyBtn');
+        
+        // Update amount display
+        if (amountSlider) {
+            amountSlider.addEventListener('input', function() {
+                amountValue.textContent = '₹' + parseInt(this.value).toLocaleString();
+            });
+        }
+        
+        // Update goal details when selection changes
+        function updateGoalDetails() {
+            const selected = goalSelect.options[goalSelect.selectedIndex];
+            const target = parseFloat(selected.dataset.target);
+            const current = parseFloat(selected.dataset.current);
+            const monthly = parseFloat(selected.dataset.monthly);
+            const progress = (current / target) * 100;
+            
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressPercent').textContent = Math.round(progress) + '%';
+            document.getElementById('currentAmount').textContent = '₹' + current.toLocaleString();
+            document.getElementById('targetAmount').textContent = '₹' + target.toLocaleString();
+            document.getElementById('monthlyAmount').textContent = '₹' + monthly.toLocaleString();
+        }
+        
+        if (goalSelect) {
+            goalSelect.addEventListener('change', updateGoalDetails);
+            updateGoalDetails();
+        }
+        
+        // Simulate function
+        async function simulate() {
+            const goalId = goalSelect.value;
+            const amount = amountSlider.value;
+            const fdSelect = document.getElementById('fdSelect');
+            const newRate = fdSelect.value;
+            const selectedGoal = goalSelect.options[goalSelect.selectedIndex];
+            const goalName = selectedGoal.dataset.name;
+            
+            simulateBtn.disabled = true;
+            simulateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
+            
+            try {
+                const response = await fetch('/GoalSimulator/Simulate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        goalId: parseInt(goalId), 
+                        amount: parseFloat(amount), 
+                        newRate: parseFloat(newRate) 
+                    })
+                });
+                
+                const result = await response.json();
+                
+                resultsCard.classList.remove('hidden');
+                impactContent.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                        <div class="text-center p-4 bg-green-500/10 rounded-xl border border-green-500/20 result-card">
+                            <i class="fas fa-coins text-green-500 text-xl mb-2"></i>
+                            <p class="text-xs text-gray-400">Extra Interest/Year</p>
+                            <p class="text-2xl font-bold text-green-400">₹${Math.round(result.extraPerYear).toLocaleString()}</p>
+                        </div>
+                        <div class="text-center p-4 bg-blue-500/10 rounded-xl border border-blue-500/20 result-card">
+                            <i class="fas fa-clock text-blue-500 text-xl mb-2"></i>
+                            <p class="text-xs text-gray-400">Time Saved</p>
+                            <p class="text-2xl font-bold text-blue-400">${result.monthsSaved} months</p>
+                        </div>
+                        <div class="text-center p-4 bg-purple-500/10 rounded-xl border border-purple-500/20 result-card">
+                            <i class="fas fa-calendar-check text-purple-500 text-xl mb-2"></i>
+                            <p class="text-xs text-gray-400">New Completion</p>
+                            <p class="text-2xl font-bold text-purple-400">${result.newCompletionDate}</p>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
+                        <i class="fas fa-chart-line text-yellow-500 mr-2"></i>
+                        <strong class="text-white">${result.goalName}</strong> 
+                        <span class="text-gray-300">will be achieved ${result.monthsSaved > 0 ? result.monthsSaved + ' months earlier' : 'on schedule'}!</span>
+                    </div>
+                `;
+                
+                // Scroll to results
+                resultsCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+            } catch (error) {
+                console.error(error);
+                alert('Error calculating impact. Please try again.');
+            } finally {
+                simulateBtn.disabled = false;
+                simulateBtn.innerHTML = '<i class="fas fa-chart-simple"></i> See Impact →';
+            }
+        }
+        
+        // Apply strategy
+        function applyStrategy() {
+            alert('✨ Strategy saved! This goal is now optimized.\n\nIn production, this would automate moving funds to the selected FD.');
+        }
+        
+        // Event Listeners
+        if (simulateBtn) simulateBtn.addEventListener('click', simulate);
+        if (applyStrategyBtn) applyStrategyBtn.addEventListener('click', applyStrategy);
+    </script>
+</body>
+</html>

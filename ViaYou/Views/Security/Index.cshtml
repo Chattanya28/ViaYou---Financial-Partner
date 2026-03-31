@@ -1,0 +1,311 @@
+@model ViaYou.ViewModels.SecurityHubViewModel
+@{
+    ViewData["Title"] = "Security Hub - ViaYou";
+}
+
+<style>
+    .card-3d {
+        transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        transform: translateY(0);
+    }
+    .card-3d:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(59, 130, 246, 0.2);
+    }
+    .btn-3d { transition: all 0.2s ease; }
+    .btn-3d:active { transform: translateY(2px); }
+    .slide-in { animation: slideIn 0.5s ease-out forwards; }
+    @@keyframes slideIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Toggle Switch Styles */
+    .toggle-checkbox:checked {
+        right: 0;
+        border-color: #3B82F6;
+    }
+    .toggle-checkbox:checked + .toggle-label {
+        background-color: #3B82F6;
+    }
+    .toggle-checkbox {
+        right: 0;
+        z-index: 1;
+        border-color: #4B5563;
+        transition: all 0.3s;
+    }
+    .toggle-label {
+        background-color: #4B5563;
+        transition: all 0.3s;
+    }
+</style>
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-8 slide-in">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2 flex items-center gap-3">
+            <i class="fas fa-shield-haltered text-blue-500"></i>
+            Security Hub
+        </h1>
+        <p class="text-gray-400">Monitor your account safety, active sessions, and security score.</p>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8 mb-8">
+        <!-- Score Card -->
+        <div class="bg-gradient-to-br from-dark-card to-dark border border-dark-border rounded-2xl p-6 card-3d relative overflow-hidden flex flex-col justify-center items-center text-center">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-2xl rounded-full mix-blend-screen pointer-events-none"></div>
+            
+            <h2 class="text-gray-300 font-medium mb-4">Overall Security Score</h2>
+            <div class="relative w-32 h-32 flex items-center justify-center mb-4">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <path class="text-dark-border" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <path class="@(Model.TotalScore >= 80 ? "text-green-500" : Model.TotalScore >= 50 ? "text-yellow-500" : "text-red-500") transition-all duration-1000 ease-out" stroke-dasharray="@Model.TotalScore, 100" stroke-width="3" stroke="currentColor" fill="none" stroke-linecap="round" d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="absolute text-3xl font-bold text-white">@Model.TotalScore</div>
+            </div>
+            <p class="text-sm @(Model.TotalScore >= 80 ? "text-green-400" : "text-yellow-400")">
+                @(Model.TotalScore >= 80 ? "Excellent Protection" : "Action Required")
+            </p>
+        </div>
+
+        <!-- Security Checklist -->
+        <div class="lg:col-span-2 bg-dark-card rounded-2xl p-6 border border-dark-border card-3d">
+            <h3 class="text-lg font-semibold text-white mb-4 border-b border-dark-border pb-2">Security Checklist</h3>
+            <div class="grid sm:grid-cols-2 gap-4">
+                
+                <div class="flex items-center justify-between p-3 rounded-xl bg-dark/50 border border-dark-border">
+                    <div class="flex items-center gap-3">
+                        <i class="fas @(Model.Is2FAEnabled ? "fa-check-circle text-green-500" : "fa-circle text-gray-600")"></i>
+                        <span class="text-gray-300 text-sm">Two-Factor Authentication</span>
+                    </div>
+                    <span class="text-xs font-bold text-blue-400">+25</span>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 rounded-xl bg-dark/50 border border-dark-border">
+                    <div class="flex items-center gap-3">
+                        <i class="fas @(Model.RecoveryEmailConfigured ? "fa-check-circle text-green-500" : "fa-circle text-gray-600")"></i>
+                        <span class="text-gray-300 text-sm">Recovery Email configured</span>
+                    </div>
+                    <span class="text-xs font-bold text-blue-400">+15</span>
+                </div>
+
+                <div class="flex items-center justify-between p-3 rounded-xl bg-dark/50 border border-dark-border">
+                    <div class="flex items-center gap-3">
+                        <i class="fas @(Model.IsPasswordHealthy ? "fa-check-circle text-green-500" : "fa-circle text-gray-600")"></i>
+                        <span class="text-gray-300 text-sm">Password Age < 90 days</span>
+                    </div>
+                    <span class="text-xs font-bold text-blue-400">+15</span>
+                </div>
+
+                <div class="flex items-center justify-between p-3 rounded-xl bg-dark/50 border border-dark-border">
+                    <div class="flex items-center gap-3">
+                        <i class="fas @(Model.HasNoSuspiciousDevices ? "fa-check-circle text-green-500" : "fa-circle text-gray-600")"></i>
+                        <span class="text-gray-300 text-sm">No Suspicious Alerts</span>
+                    </div>
+                    <span class="text-xs font-bold text-blue-400">+15</span>
+                </div>
+
+                <div class="flex items-center justify-between p-3 rounded-xl bg-dark/50 border border-dark-border">
+                    <div class="flex items-center gap-3">
+                        <i class="fas @(Model.HasSafeSessionsCount ? "fa-check-circle text-green-500" : "fa-circle text-gray-600")"></i>
+                        <span class="text-gray-300 text-sm">Active Sessions < 3</span>
+                    </div>
+                    <span class="text-xs font-bold text-blue-400">+10</span>
+                </div>
+
+                <div class="flex items-center justify-between p-3 rounded-xl bg-dark/50 border border-dark-border">
+                    <div class="flex items-center gap-3">
+                        <i class="fas @(Model.LoginAlertsEnabled ? "fa-check-circle text-green-500" : "fa-circle text-gray-600")"></i>
+                        <span class="text-gray-300 text-sm">Login Alerts Enabled</span>
+                    </div>
+                    <span class="text-xs font-bold text-blue-400">+10</span>
+                </div>
+
+                <div class="flex items-center justify-between p-3 rounded-xl bg-dark/50 border border-dark-border">
+                    <div class="flex items-center gap-3">
+                        <i class="fas @(Model.TransactionLimitsSet ? "fa-check-circle text-green-500" : "fa-circle text-gray-600")"></i>
+                        <span class="text-gray-300 text-sm">Transaction Limits Set</span>
+                    </div>
+                    <span class="text-xs font-bold text-blue-400">+10</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Toggles -->
+    <div class="bg-dark-card rounded-2xl p-6 border border-dark-border card-3d mb-8">
+        <h3 class="text-lg font-semibold text-white mb-6">Security Settings</h3>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-white text-sm font-medium">Two-Factor Auth</p>
+                    <p class="text-xs text-gray-500 mt-0.5">App-based OTP</p>
+                </div>
+                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" id="toggle-2fa" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer" @(Model.Is2FAEnabled ? "checked" : "") onchange="toggleSetting('TwoFactor', this.checked)"/>
+                    <label for="toggle-2fa" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-white text-sm font-medium">Login Alerts</p>
+                    <p class="text-xs text-gray-500 mt-0.5">Email on new device</p>
+                </div>
+                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" id="toggle-alerts" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer" @(Model.LoginAlertsEnabled ? "checked" : "") onchange="toggleSetting('LoginAlerts', this.checked)"/>
+                    <label for="toggle-alerts" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-white text-sm font-medium">Transaction Limits</p>
+                    <p class="text-xs text-gray-500 mt-0.5">Cap daily transfers</p>
+                </div>
+                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" id="toggle-limits" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer" @(Model.TransactionLimitsSet ? "checked" : "") onchange="toggleSetting('TransactionLimits', this.checked)"/>
+                    <label for="toggle-limits" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-white text-sm font-medium">Recovery Email</p>
+                    <p class="text-xs text-gray-500 mt-0.5">Use alternate email</p>
+                </div>
+                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <input type="checkbox" id="toggle-recovery" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer" @(Model.RecoveryEmailConfigured ? "checked" : "") onchange="toggleSetting('RecoveryEmail', this.checked)"/>
+                    <label for="toggle-recovery" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @if (Model.Alerts.Any())
+    {
+        <div class="mb-8 card-3d bg-red-500/10 border border-red-500/20 rounded-2xl p-6">
+            <h3 class="text-lg font-semibold text-red-500 mb-4 flex items-center gap-2">
+                <i class="fas fa-triangle-exclamation"></i> Security Alerts
+            </h3>
+            <div class="space-y-3">
+                @foreach (var alert in Model.Alerts)
+                {
+                    <div class="flex items-center justify-between bg-dark/50 p-4 rounded-xl border border-red-500/20">
+                        <div class="flex items-start gap-4">
+                            <i class="fas fa-desktop text-red-400 mt-1"></i>
+                            <div>
+                                <p class="text-white font-medium text-sm">Suspicious Login Attempt</p>
+                                <p class="text-xs text-gray-400 mt-1">@alert.DeviceInfo • @alert.Location</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-gray-500">@alert.LoginTime.ToString("dd MMM yyyy, hh:mm tt")</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Active Sessions -->
+    <div class="bg-dark-card rounded-2xl p-6 border border-dark-border card-3d mb-8">
+        <h3 class="text-lg font-semibold text-white mb-6">Trusted Devices & Active Sessions</h3>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-400">
+                <thead class="text-xs text-gray-500 uppercase bg-dark/50">
+                    <tr>
+                        <th class="px-4 py-3 rounded-tl-xl border-b border-dark-border">Device</th>
+                        <th class="px-4 py-3 border-b border-dark-border">Location</th>
+                        <th class="px-4 py-3 border-b border-dark-border">IP Address</th>
+                        <th class="px-4 py-3 border-b border-dark-border">Last Active</th>
+                        <th class="px-4 py-3 rounded-tr-xl border-b border-dark-border text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var session in Model.TrustedDevices)
+                    {
+                        <tr class="border-b border-dark-border hover:bg-white/5 transition" id="row-@session.Id">
+                            <td class="px-4 py-4 font-medium text-white flex items-center gap-3">
+                                <i class="fas fa-laptop text-blue-500"></i>
+                                @session.DeviceInfo
+                                @if (session.Id == Model.TrustedDevices.First().Id) {
+                                    <span class="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ml-2">Current</span>
+                                }
+                            </td>
+                            <td class="px-4 py-4">@session.Location</td>
+                            <td class="px-4 py-4 font-mono text-xs text-gray-500">@session.IpAddress</td>
+                            <td class="px-4 py-4">@session.LoginTime.ToString("MMM dd, yyyy")</td>
+                            <td class="px-4 py-4 text-right">
+                                @if (session.Id != Model.TrustedDevices.First().Id)
+                                {
+                                    <button onclick="revokeSession(@session.Id)" class="text-red-400 hover:text-red-300 hover:bg-red-400/10 px-3 py-1.5 rounded-lg transition text-xs font-semibold">
+                                        Revoke
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="text-gray-600 text-xs italic">Active</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function toggleSetting(settingKey, isEnabled) {
+            try {
+                const response = await fetch('/Security/ToggleSetting', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ Setting: settingKey, Enable: isEnabled })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    // Slight delay to allow UI to visually transition, then reload for fresh score
+                    setTimeout(() => window.location.reload(), 300);
+                } else {
+                    alert('Failed to update setting.');
+                    // Revert UI toggle
+                    event.target.checked = !isEnabled;
+                }
+            } catch (e) {
+                console.error(e);
+                alert('An error occurred.');
+            }
+        }
+
+        async function revokeSession(historyId) {
+            if(!confirm('Are you sure you want to revoke access for this device? It will be logged out dynamically.')) return;
+            
+            try {
+                const response = await fetch('/Security/RevokeSession', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ HistoryId: historyId })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('row-' + historyId).style.opacity = '0.5';
+                    setTimeout(() => window.location.reload(), 500);
+                } else {
+                    alert('Failed to revoke session.');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('An error occurred.');
+            }
+        }
+    </script>
+}

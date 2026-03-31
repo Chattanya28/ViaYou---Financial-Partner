@@ -1,0 +1,135 @@
+@{
+    ViewData["Title"] = "Tax Command Center";
+    decimal gross = ViewBag.GrossIncome;
+    decimal sec80C = ViewBag.Sec80C;
+    decimal effective80C = ViewBag.Effective80C;
+    decimal taxable = ViewBag.TaxableIncome;
+    decimal liability = ViewBag.TaxLiability;
+    
+    decimal percent80C = sec80C > 0 ? Math.Min((sec80C / 150000) * 100, 100) : 0;
+}
+
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl slide-in relative py-8">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                <i class="fas fa-landmark text-blue-500"></i>
+                Tax Analytics Engine
+            </h1>
+            <p class="text-gray-400 mt-2 text-sm">FY @DateTime.Now.Year-@(DateTime.Now.Year + 1) simulated projections based on detected transaction flows.</p>
+        </div>
+        <button class="px-5 py-2.5 bg-dark-card border border-dark-border hover:border-blue-500/50 hover:bg-white/5 text-blue-400 font-medium rounded-xl transition-all btn-3d flex items-center gap-2">
+            <i class="fas fa-download"></i> Download Report Form
+        </button>
+    </div>
+
+    <!-- Top Headline Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Gross -->
+        <div class="bg-dark-card border border-dark-border rounded-2xl p-5 shadow-3d card-3d relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full z-0 group-hover:scale-150 transition-transform duration-500"></div>
+            <p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2 relative z-10">Gross Incoming</p>
+            <h3 class="text-2xl font-bold text-white relative z-10">₹@gross.ToString("N0")</h3>
+        </div>
+
+        <!-- Deductions -->
+        <div class="bg-dark-card border border-dark-border rounded-2xl p-5 shadow-3d card-3d relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-purple-500/5 rounded-full z-0 group-hover:scale-150 transition-transform duration-500"></div>
+            <p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2 relative z-10">Total Deductions</p>
+            <h3 class="text-2xl font-bold text-purple-400 relative z-10">₹@((effective80C + 50000).ToString("N0"))</h3>
+        </div>
+
+        <!-- Taxable Base -->
+        <div class="bg-dark-card border border-dark-border rounded-2xl p-5 shadow-3d card-3d relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full z-0 group-hover:scale-150 transition-transform duration-500"></div>
+            <p class="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2 relative z-10">Taxable Income</p>
+            <h3 class="text-2xl font-bold text-white relative z-10">₹@taxable.ToString("N0")</h3>
+        </div>
+
+        <!-- Liability Core -->
+        <div class="bg-dark-card border border-red-500/20 rounded-2xl p-5 shadow-[0_0_20px_rgba(239,68,68,0.1)] card-3d relative overflow-hidden group">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-red-500/10 rounded-full z-0 group-hover:scale-150 transition-transform duration-500"></div>
+            <p class="text-rose-400 text-xs font-semibold uppercase tracking-wider mb-2 relative z-10">Estimated Liability</p>
+            <h3 class="text-2xl font-bold text-rose-500 relative z-10">₹@liability.ToString("N0")</h3>
+        </div>
+    </div>
+
+    <!-- Active Section Modules -->
+    <div class="grid lg:grid-cols-2 gap-8">
+        
+        <!-- Sec 80C Matrix -->
+        <div class="bg-dark-card border border-dark-border rounded-3xl p-6 md:p-8 shadow-3d card-3d relative">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h3 class="text-xl font-bold text-white mb-1">Section 80C Optimization</h3>
+                    <p class="text-sm text-gray-400">Limit: ₹1,50,000</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-shield-haltered text-blue-500 text-xl"></i>
+                </div>
+            </div>
+
+            <!-- Progress Arc Simulation -->
+            <div class="relative w-full h-4 bg-dark/50 rounded-full overflow-hidden mb-4 progress-3d">
+                <div class="absolute top-0 left-0 h-full bg-gradient-to-r @(percent80C == 100 ? "from-emerald-500 to-green-400" : "from-blue-600 to-blue-400") transition-all duration-1000" style="width: @percent80C%;"></div>
+            </div>
+            
+            <div class="flex justify-between items-center text-sm font-medium">
+                <span class="text-white">₹@sec80C.ToString("N0") detected</span>
+                <span class="text-gray-500">@percent80C.ToString("0.0")% Utilized</span>
+            </div>
+
+            @if(percent80C < 100)
+            {
+                <div class="mt-8 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex gap-4">
+                    <i class="fas fa-lightbulb text-amber-500 mt-1"></i>
+                    <div>
+                        <h4 class="text-amber-500 font-bold text-sm mb-1">Tax Gap Detected</h4>
+                        <p class="text-gray-400 text-xs leading-relaxed">You have <span class="text-white font-bold">₹@((150000 - sec80C).ToString("N0"))</span> remaining in your 80C quota. Invest in Tax Saving Mutual Funds (ELSS) before March 31st to drop your final liability baseline.</p>
+                        <a href="/Compare" class="inline-block mt-3 px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-lg text-xs font-bold transition-colors">Route to Comparisons</a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="mt-8 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex gap-4 items-center">
+                    <i class="fas fa-check-circle text-emerald-500 text-xl"></i>
+                    <div>
+                        <h4 class="text-emerald-400 font-bold text-sm">Target Met Perfectly</h4>
+                        <p class="text-gray-400 text-xs">Maximum Section 80C limit utilized efficiently.</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Liability Output Log -->
+        <div class="bg-dark-card border border-dark-border rounded-3xl p-6 md:p-8 shadow-3d card-3d flex flex-col justify-between">
+            <div>
+                <h3 class="text-xl font-bold text-white mb-6">Simulation Engine Output</h3>
+                
+                <ul class="space-y-4">
+                    <li class="flex justify-between items-center border-b border-white/5 pb-4">
+                        <span class="text-gray-400 text-sm">Aggregate Income Detected</span>
+                        <span class="text-white font-medium">₹@gross.ToString("N0")</span>
+                    </li>
+                    <li class="flex justify-between items-center border-b border-white/5 pb-4">
+                        <span class="text-gray-400 text-sm">Standard Deduction (Sec 16)</span>
+                        <span class="text-rose-400 font-medium">-₹50,000</span>
+                    </li>
+                    <li class="flex justify-between items-center border-b border-dark-border pb-4">
+                        <span class="text-gray-400 text-sm">Section 80C Impact</span>
+                        <span class="text-rose-400 font-medium">-₹@effective80C.ToString("N0")</span>
+                    </li>
+                    <li class="flex justify-between items-center pt-2">
+                        <span class="text-white font-bold text-base">Old Regime Taxable Base</span>
+                        <span class="text-blue-400 font-bold text-lg">₹@taxable.ToString("N0")</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <button class="w-full mt-8 py-3 bg-dark/50 hover:bg-white/5 border border-dark-border text-gray-300 rounded-xl font-medium transition-colors text-sm flex justify-center items-center gap-2">
+                <i class="fas fa-calculator text-gray-500"></i> Manually Override Figures
+            </button>
+        </div>
+    </div>
+</div>
